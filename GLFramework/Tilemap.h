@@ -34,7 +34,10 @@ public:
 	void loadMap(std::string mapData);
 	glm::vec2 getCoordAtPos(glm::vec3 position) const;
 	int getValueAtCoord(int x, int y) const;
+	int getValueAtCoord(glm::vec2 coord) const;
 	int getValueAtPos(glm::vec3 position) const;
+	glm::vec3 getPositionAtCoord(int x, int y) const;
+	glm::vec3 getPositionAtCoord(glm::vec2 coord) const;
 
 	// === Accessors ===
 

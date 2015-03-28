@@ -13,7 +13,8 @@ private:
 
 	float currentTime = 0.0f;
 	float tickInterval;
-	float duration;
+	float tickDuration;
+	float durationLeft;
 	bool isRunning = true;
 	bool ticked = false;
 
@@ -30,6 +31,7 @@ public:
 	bool hasTicked();
 	void start();
 	void stop();
+	void reset();
 
 	// === Accessors ===
 

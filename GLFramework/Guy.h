@@ -10,6 +10,7 @@ class Guy : public Character
 private:
 
 	int score = 0;
+	Timer* tHurtFlash;
 
 public:
 
@@ -19,6 +20,8 @@ public:
 
 	void update(float dt);
 	void destroy();
+
+	void damageTaken();
 
 	// === Callbacks ===
 

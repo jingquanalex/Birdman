@@ -9,7 +9,7 @@ vector<Timer*> Timer::listTimers;
 Timer::Timer(float interval, float duration)
 {
 	this->tickInterval = interval;
-	this->duration = duration;
+	this->tickDuration = durationLeft = duration;
 	listTimers.push_back(this);
 }
 
@@ -31,10 +31,10 @@ void Timer::update(float dt)
 	// If tick inverval is elasped, set tick.
 	if (currentTime > tickInterval)
 	{
-		// If timer is set to run over a period of time.
-		if (duration != 0.0f)
+		// If timer is set to run over a duration.
+		if (tickDuration != 0.0f)
 		{
-			duration -= currentTime;
+			durationLeft -= currentTime;
 		}
 
 		currentTime = 0.0f;
@@ -42,7 +42,7 @@ void Timer::update(float dt)
 	}
 
 	// Stop timer if it has ran its duration
-	if (duration < 0.0f)
+	if (tickDuration != 0.0f && durationLeft < 0.0f)
 	{
 		isRunning = false;
 	}
@@ -76,6 +76,11 @@ void Timer::stop()
 	isRunning = false;
 }
 
+void Timer::reset()
+{
+	durationLeft = tickDuration;
+}
+
 float Timer::getTickInterval() const
 {
 	return tickInterval;
@@ -83,7 +88,7 @@ float Timer::getTickInterval() const
 
 float Timer::getDuration() const
 {
-	return duration;
+	return tickDuration;
 }
 
 bool Timer::getIsRunning() const

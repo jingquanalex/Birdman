@@ -19,10 +19,9 @@ protected:
 	glm::vec3 velocity;
 	float moveSpeed;
 	float jumpSpeed;
-	bool isMovingLeft, isMovingRight, isJumping, isOnPlatform, isHurt, isInvuln, isIdle;
-	bool isCollidingX = false;
-
-	//bool isPhysicsAffected = false;
+	bool isMovingLeft, isMovingRight, isJumping, isOnPlatform, isHurt, isInvuln, isIdle,
+		isKnockedBack;
+	int collidingX = 0, collidingY = 0;
 
 public:
 
@@ -34,9 +33,6 @@ public:
 	void destroy();
 
 	void setupMapCollision(Tilemap* tilemap);
-
-	//bool getIsPhysicsAffected() const;
-	//void setIsPhysicsAffected(bool isPhysicsAffected);
 
 	// === Accessors ===
 

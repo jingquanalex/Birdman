@@ -112,7 +112,7 @@ void Tilemap::destroy()
 	Sprite::destroy();
 }
 
-glm::vec2 Tilemap::getCoordAtPos(glm::vec3 position) const
+glm::vec2 Tilemap::getCoordAtPos(vec3 position) const
 {
 	if (position.x >= 0.0f && position.y <= 0.0f)
 	{
@@ -134,8 +134,22 @@ int Tilemap::getValueAtCoord(int x, int y) const
 	}
 }
 
-int Tilemap::getValueAtPos(glm::vec3 position) const
+int Tilemap::getValueAtCoord(vec2 coord) const
 {
-	vec2 currentCoord = getCoordAtPos(position);
-	return getValueAtCoord((int)currentCoord.x, (int)currentCoord.y);
+	return getValueAtCoord((int)coord.x, (int)coord.y);
+}
+
+int Tilemap::getValueAtPos(vec3 position) const
+{
+	return getValueAtCoord(getCoordAtPos(position));
+}
+
+vec3 Tilemap::getPositionAtCoord(int x, int y) const
+{
+	return vec3(mapTileSize.x * x, mapTileSize.y * y, 0);
+}
+
+vec3 Tilemap::getPositionAtCoord(vec2 coord) const
+{
+	return getPositionAtCoord(coord.x, coord.y);
 }
