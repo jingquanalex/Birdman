@@ -38,6 +38,7 @@ public:
 	int getValueAtPos(glm::vec3 position) const;
 	glm::vec3 getPositionAtCoord(int x, int y) const;
 	glm::vec3 getPositionAtCoord(glm::vec2 coord) const;
+	glm::vec2 getMapTileSize() const;
 
 	// === Accessors ===
 

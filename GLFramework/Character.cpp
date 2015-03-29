@@ -8,77 +8,86 @@ Character::Character(string texPath, vec3 position, vec2 size) : Sprite(texPath,
 	isMovingLeft = false;
 	isMovingRight = false;
 	isJumping = false;
-	isHurt = false;
 	isInvuln = false;
 	isIdle = false;
 	isOnPlatform = false;
-	isKnockedBack = false;
 }
 
 void Character::update(float dt)
 {
 	// Movement left and right
-	if (isMovingLeft)
+	
+	// Check for collision at the topleft and bottomleft points of the sprite bounding box.
+	vec2 coordT = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
+	vec2 coordB = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
+	int valueT = tilemap->getValueAtCoord(coordT);
+	int valueB = tilemap->getValueAtCoord(coordB);
+	if (valueT != -1 || valueB != -1)
+	{
+		// If colliding on the left side, set 0 velocity and position right next to the wall.
+		collidingX = -1;
+		if (velocity.x < 0.0f) velocity.x = 0.0f;
+		position.x = tilemap->getPositionAtCoord(coordT).x + tilemap->getMapTileSize().x + boundingRectSize.x / 2 + boundingRectPositionOffset.x - 1;
+	}
+	else if (isMovingLeft && !stateKnockedBack)
 	{
 		collidingX = 0; // Is the character colliding horizontally. -1 : left, 1 : right
-		isFlippedX = 1; // Is the sprite flipped horizontally.
 		velocity.x = -moveSpeed;
-		
-		// Check for collision at the topleft and bottomleft points of the sprite bounding box.
-		int valueT = tilemap->getValueAtPos(position + vec3(-boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
-		int valueB = tilemap->getValueAtPos(position + vec3(-boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
-		if (valueT != -1 || valueB != -1)
-		{
-			//position.x = tilemap->getPositionAtCoord(;
-			collidingX = -1;
-			velocity.x = 0.0f;
-		}
 	}
 
-	if (isMovingRight)
+	// Check for collision at the topright and bottomright points of the sprite bounding box.
+	coordT = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
+	coordB = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
+	valueT = tilemap->getValueAtCoord(coordT);
+	valueB = tilemap->getValueAtCoord(coordB);
+	if (valueT != -1 || valueB != -1)
+	{
+		collidingX = 1;
+		if (velocity.x > 0.0f) velocity.x = 0.0f;
+		position.x = tilemap->getPositionAtCoord(coordT).x - boundingRectSize.x / 2 + boundingRectPositionOffset.x;
+	}
+	else if (isMovingRight && !stateKnockedBack)
 	{
 		collidingX = 0;
-		isFlippedX = 0;
 		velocity.x = moveSpeed;
-
-		// Stop moving if tile at position (plus offset) is not empty.
-		int valueT = tilemap->getValueAtPos(position + vec3(boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
-		int valueB = tilemap->getValueAtPos(position + vec3(boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
-		if (valueT != -1 || valueB != -1)
-		{
-			//position = oldPosition;
-			collidingX = 1;
-			velocity.x = 0.0f;
-		}
 	}
 
 	// Stop if not moving left or right.
-	if (!(isMovingLeft || isMovingRight) || isMovingLeft && isMovingRight)
+	if (!stateKnockedBack && (!(isMovingLeft || isMovingRight) || isMovingLeft && isMovingRight))
 	{
 		velocity.x = 0.0f;
 	}
 
 	// Always fall if not colliding.
-	int valueL = tilemap->getValueAtPos(position + vec3(-boundingRectSize.x / 2 + 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	int valueR = tilemap->getValueAtPos(position + vec3(boundingRectSize.x / 2 - 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	if (valueL == -1 && valueR == -1)
+	// Check for collision at the bottomleft and bottomright points of the sprite bounding box.
+	vec2 coordL = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2 + 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+	vec2 coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+	int valueL = tilemap->getValueAtCoord(coordL);
+	int valueR = tilemap->getValueAtCoord(coordR);
+	if (valueL != -1 || valueR != -1)
 	{
-		velocity.y += -gravity;
-		isOnPlatform = 0;
+		isOnPlatform = 1;
+		velocity.y = 0;
+		position.y = tilemap->getPositionAtCoord(coordL).y + boundingRectSize.y / 2 - boundingRectPositionOffset.y;
 	}
 	else
 	{
-		velocity.y = 0;
-		isOnPlatform = 1;
+		isOnPlatform = 0;
+		velocity.y += -gravity;
 	}
+
+	printf("%f, %f \n", position.x, position.y);
 	
 	// Celling collision
-	valueL = tilemap->getValueAtPos(position + vec3(-boundingRectSize.x / 2 + 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	valueR = tilemap->getValueAtPos(position + vec3(boundingRectSize.x / 2 - 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+	// Check for collision at the topleft and topright points of the sprite bounding box.
+	coordL = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2 + 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+	coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+	valueL = tilemap->getValueAtCoord(coordL);
+	valueR = tilemap->getValueAtCoord(coordR);
 	if (valueL != -1 || valueR != -1)
 	{
-		position = oldPosition;
 		velocity.y = -velocity.y / 2;
+		position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 + boundingRectPositionOffset.y;
 	}
 
 	// Jumping
@@ -87,17 +96,24 @@ void Character::update(float dt)
 		velocity.y = jumpSpeed;
 	}
 
-	if (isKnockedBack)
+	// Knocked back states
+
+	if (stateKnockedBack == 2 && isOnPlatform)
+	{
+		stateKnockedBack = 0;
+	}
+
+	if (stateKnockedBack == 1)
 	{
 		if (isFlippedX)
 		{
-			velocity = vec3(800, 900, 0);
+			velocity = vec3(400, 400, 0);
 		}
 		else
 		{
-			velocity = vec3(-800, 900, 0);
+			velocity = vec3(-400, 400, 0);
 		}
-		isKnockedBack = 0;
+		stateKnockedBack = 2;
 	}
 
 	oldPosition = position;

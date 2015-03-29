@@ -19,9 +19,9 @@ protected:
 	glm::vec3 velocity;
 	float moveSpeed;
 	float jumpSpeed;
-	bool isMovingLeft, isMovingRight, isJumping, isOnPlatform, isHurt, isInvuln, isIdle,
-		isKnockedBack;
+	bool isMovingLeft, isMovingRight, isJumping, isOnPlatform, isInvuln, isIdle;;
 	int collidingX = 0, collidingY = 0;
+	int stateKnockedBack = 0;
 
 public:
 

@@ -6,10 +6,10 @@ using namespace glm;
 Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 64))
 {
 	// Timer for damage taken sprite flash.
-	tHurtFlash = new Timer(0.1f, 1.5f);
+	tHurtFlash = new Timer(0.07f, 1.5f);
 	tHurtFlash->stop();
 
-	jumpSpeed = 1200.0f;
+	jumpSpeed = 1000.0f;
 	moveSpeed = 550.0f;
 	setupAnimation(vec2(64, 64), 0.1f, 0, 2);
 	startAnimation();
@@ -21,14 +21,12 @@ void Guy::update(float dt)
 {
 	if (tHurtFlash->getIsRunning())
 	{
-		// Make sprite flashand set invuln period.
-
-		setFrameRange(4, 4);
+		// Sprite flashing during invuln period.
 		if (tHurtFlash->hasTicked())
 		{
 			if (alpha == 1.0f)
 			{
-				alpha = 0.5f;
+				alpha = 0.3f;
 			}
 			else
 			{
@@ -39,26 +37,29 @@ void Guy::update(float dt)
 	else
 	{
 		alpha = 1.0f;
-		isInvuln = 0;
+	}
 
-		if (collidingX && (isMovingLeft || isMovingRight))
-		{
-			setFrame(48);
-		}
-		else if (!isOnPlatform)
-		{
-			setFrameRange(15, 16);
-			setFrameInterval(0.1f);
-		}
-		else if (isMovingLeft || isMovingRight)
-		{
-			setFrameRange(12, 14);
-			setFrameInterval(0.1f);
-		}
-		else
-		{
-			setFrameRange(0, 0);
-		}
+	if (stateKnockedBack)
+	{
+		setFrameRange(4, 4);
+	}
+	else if (collidingX && (isMovingLeft || isMovingRight) && !(isMovingLeft && isMovingRight))
+	{
+		setFrameRange(48, 48);
+	}
+	else if (!isOnPlatform)
+	{
+		setFrameRange(15, 16);
+		setFrameInterval(0.1f);
+	}
+	else if ((isMovingLeft || isMovingRight) && !(isMovingLeft && isMovingRight))
+	{
+		setFrameRange(12, 14);
+		setFrameInterval(0.1f);
+	}
+	else
+	{
+		setFrameRange(0, 0);
 	}
 
 	Character::update(dt);
@@ -72,9 +73,8 @@ void Guy::destroy()
 
 void Guy::damageTaken()
 {
-	isKnockedBack = 1;
+	stateKnockedBack = 1;
 	isInvuln = 1;
-	isHurt = 1;
 	tHurtFlash->reset();
 	tHurtFlash->start();
 }
@@ -85,9 +85,11 @@ void Guy::keyboardSpecial(int key)
 	{
 	case GLUT_KEY_LEFT:
 		isMovingLeft = 1;
+		isFlippedX = 1;
 		break;
 	case GLUT_KEY_RIGHT:
 		isMovingRight = 1;
+		isFlippedX = 0;
 		break;
 	}
 }
