@@ -9,6 +9,7 @@ extern int window_height;
 Sprite* background;
 Tilemap* tilemap;
 Guy* guy;
+NPC* npc;
 
 Scene::Scene(Camera* camera, Cursor* cursor)
 {
@@ -28,33 +29,62 @@ void Scene::load()
 	guy = new Guy(vec3(440, -2155, 0));
 	guy->setupMapCollision(tilemap);
 
+	npc = new NPC(vec3(1430, -2200, 0), NPCTYPE::RED);
+	npc->setupMapCollision(tilemap);
+
 	camera->setPosition(guy->getPosition());
 
 	Sprite::sortToZOrder();
+
+	stateLoaded = 1;
 }
 
 void Scene::update(float dt)
 {
+	// Prevent dt spike during loading.
+	if (stateLoaded == 1)
+	{
+		dt = 0.0f;
+		stateLoaded = 2;
+	}
+
+	if (!stateLoaded) return;
+
 	background->update(dt);
-	guy->update(dt);
+	Character::updateCharacters(dt);
 	camera->moveTo(guy->getPosition() + vec3(0, 50, 0));
 
-	// Handle character-map collision response.
-
+	// Character collision logics
+	for (NPC* npc : NPC::getListNPCs())
+	{
+		if (guy->isCollidingWith(npc))
+		{
+			if (guy->getIsOnPlatform())
+			{
+				guy->damageTaken();
+			}
+			else
+			{
+				npc->stomped();
+			}
+		}
+	}
 }
 
 void Scene::draw()
 {
-	
+	if (!stateLoaded) return;
 }
 
 void Scene::destroy()
 {
-
+	if (!stateLoaded) return;
 }
 
 void Scene::mouse(int button, int state)
 {
+	if (!stateLoaded) return;
+
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		printf("%i, %i \n", (int)cursor->getPosition().x, (int)cursor->getPosition().y);
@@ -66,20 +96,33 @@ void Scene::mouse(int button, int state)
 
 void Scene::keyboard(unsigned char key)
 {
+	if (!stateLoaded) return;
+
 	guy->keyboard(key);
 }
 
 void Scene::keyboardUp(unsigned char key)
 {
+	if (!stateLoaded) return;
+
 	guy->keyboardUp(key);
 }
 
 void Scene::keyboardSpecial(int key)
 {
+	if (!stateLoaded) return;
+
 	guy->keyboardSpecial(key);
 }
 
 void Scene::keyboardSpecialUp(int key)
 {
+	if (!stateLoaded) return;
+
 	guy->keyboardSpecialUp(key);
+}
+
+int Scene::getIsLoaded() const
+{
+	return stateLoaded;
 }

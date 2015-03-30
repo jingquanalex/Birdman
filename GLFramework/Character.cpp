@@ -3,14 +3,25 @@
 using namespace std;
 using namespace glm;
 
+vector<Character*> Character::listCharacters;
+
 Character::Character(string texPath, vec3 position, vec2 size) : Sprite(texPath, position, size)
 {
 	isMovingLeft = false;
 	isMovingRight = false;
-	isJumping = false;
 	isInvuln = false;
 	isIdle = false;
 	isOnPlatform = false;
+
+	listCharacters.push_back(this);
+}
+
+void Character::updateCharacters(float dt)
+{
+	for (Character* character : listCharacters)
+	{
+		character->update(dt);
+	}
 }
 
 void Character::update(float dt)
@@ -64,7 +75,7 @@ void Character::update(float dt)
 	vec2 coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
 	int valueL = tilemap->getValueAtCoord(coordL);
 	int valueR = tilemap->getValueAtCoord(coordR);
-	if (valueL != -1 || valueR != -1)
+	if ((valueL != -1 || valueR != -1) && velocity.y <= 0.0f)
 	{
 		isOnPlatform = 1;
 		velocity.y = 0;
@@ -76,7 +87,7 @@ void Character::update(float dt)
 		velocity.y += -gravity;
 	}
 
-	printf("%f, %f \n", position.x, position.y);
+	//printf("%f, %f \n", position.x, position.y);
 	
 	// Celling collision
 	// Check for collision at the topleft and topright points of the sprite bounding box.
@@ -90,14 +101,20 @@ void Character::update(float dt)
 		position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 + boundingRectPositionOffset.y;
 	}
 
-	// Jumping
-	if (isJumping && isOnPlatform)
+	// Jumping fall back on platform
+	if (stateJumping == 2 && isOnPlatform)
 	{
+		stateJumping = 0;
+	}
+
+	// Jumping start
+	if (stateJumping == 1 && isOnPlatform)
+	{
+		stateJumping = 2;
 		velocity.y = jumpSpeed;
 	}
 
 	// Knocked back states
-
 	if (stateKnockedBack == 2 && isOnPlatform)
 	{
 		stateKnockedBack = 0;
@@ -125,6 +142,7 @@ void Character::update(float dt)
 void Character::destroy()
 {
 	Sprite::destroy();
+	tilemap->destroy();
 	delete this;
 }
 
@@ -146,6 +164,21 @@ float Character::getJumpHeight() const
 vec3 Character::getVelocity() const
 {
 	return velocity;
+}
+
+bool Character::getIsNPC() const
+{
+	return isNPC;
+}
+
+bool Character::getIsOnPlatform() const
+{
+	return isOnPlatform;
+}
+
+vector<Character*> Character::getListCharacters()
+{
+	return listCharacters;
 }
 
 void Character::setMoveSpeed(float speed)

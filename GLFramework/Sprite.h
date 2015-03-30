@@ -20,6 +20,9 @@ private:
 	// from back to front based on zOrder.
 	static std::vector<Sprite*> listSprites;
 
+	// Assign a decrementing zOrder for each sprite if one is not provided.
+	static float g_zOrder;
+
 public:
 
 	static void sortToZOrder();

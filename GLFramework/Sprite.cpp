@@ -6,6 +6,7 @@ using namespace std;
 // === Static Declarations ===
 
 vector<Sprite*> Sprite::listSprites;
+float Sprite::g_zOrder = -1.0f;
 
 Sprite::Sprite()
 {
@@ -54,6 +55,13 @@ bool Sprite::load()
 {
 	// Add sprite to draw list
 	listSprites.push_back(this);
+
+	// If no zOrder is provided, assign it automatically.
+	if (zOrder == 0.0f)
+	{
+		zOrder = g_zOrder;
+		g_zOrder -= 0.1f;
+	}
 
 	// Define quad vertices and texcoords.
 	quadVert = new float[12] {

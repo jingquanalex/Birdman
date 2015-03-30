@@ -59,8 +59,12 @@ void Tilemap::loadMap(string mapData)
 			rowMapValues.clear();
 		}
 
-		// If value is -1, don't make quad at that position.
-		int value = stoi(buffer);
+		// If no value is provided, insert -1 by default. Remove all spaces.
+		int value = -1;
+		buffer.erase(remove_if(buffer.begin(), buffer.end(), isspace), buffer.end());
+		if (buffer != "") value = stoi(buffer);
+
+		// Only create quad if value is specified.
 		if (value != -1)
 		{
 			addQuadData(posx, posy, value);
@@ -110,6 +114,7 @@ void Tilemap::draw()
 void Tilemap::destroy()
 {
 	Sprite::destroy();
+	delete this;
 }
 
 glm::vec2 Tilemap::getCoordAtPos(vec3 position) const

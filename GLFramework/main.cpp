@@ -10,7 +10,6 @@ void init()
 	scene = new Scene(camera, cursor);
 	fpsTimer = new Timer(1.0f);
 
-	// TODO seperate thread loading
 	scene->load();
 }
 
@@ -96,6 +95,7 @@ void keyboardSpecialUp(int key, int x, int y)
 void keyboard(unsigned char key, int x, int y)
 {
 	if (key == 27) exit(0);
+	//else if (key == 'l') scene->load();
 	scene->keyboard(key);
 }
 

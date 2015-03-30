@@ -37,6 +37,7 @@ void Guy::update(float dt)
 	else
 	{
 		alpha = 1.0f;
+		isInvuln = 0;
 	}
 
 	if (stateKnockedBack)
@@ -68,15 +69,27 @@ void Guy::update(float dt)
 void Guy::destroy()
 {
 	Character::destroy();
+	tHurtFlash->destroy();
 	delete this;
 }
 
 void Guy::damageTaken()
 {
-	stateKnockedBack = 1;
-	isInvuln = 1;
-	tHurtFlash->reset();
-	tHurtFlash->start();
+	if (!isInvuln)
+	{
+		stateKnockedBack = 1;
+		isInvuln = 1;
+		tHurtFlash->reset();
+		tHurtFlash->start();
+	}
+}
+
+void Guy::jump()
+{
+	if (stateJumping == 0)
+	{
+		stateJumping = 1;
+	}
 }
 
 void Guy::keyboardSpecial(int key)
@@ -112,10 +125,13 @@ void Guy::keyboard(unsigned char key)
 	switch (key)
 	{
 	case KEY_SPACE:
-		isJumping = 1;
-		break;
-	case 'f':
-		damageTaken();
+		
+		if (jumpPressed == 0)
+		{
+			jump();
+			jumpPressed = 1;
+		}
+		
 		break;
 	}
 }
@@ -125,7 +141,7 @@ void Guy::keyboardUp(unsigned char key)
 	switch (key)
 	{
 	case KEY_SPACE:
-		isJumping = 0;
+		jumpPressed = 0;
 		break;
 	}
 }

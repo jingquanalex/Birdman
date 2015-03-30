@@ -7,6 +7,7 @@
 #include "Tilemap.h"
 #include "Character.h"
 #include "Guy.h"
+#include "NPC.h"
 
 // Manages the player, map, objects, score, game logic.
 class Scene
@@ -14,6 +15,7 @@ class Scene
 
 private:
 
+	int stateLoaded = 0;
 	Camera* camera;
 	Cursor* cursor;
 
@@ -35,4 +37,9 @@ public:
 	void keyboardUp(unsigned char key);
 	void keyboardSpecial(int key);
 	void keyboardSpecialUp(int key);
+
+	// === Accessors ===
+
+	int getIsLoaded() const;
+
 };

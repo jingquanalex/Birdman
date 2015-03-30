@@ -89,6 +89,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Guy.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NPC.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Tilemap.cpp" />
@@ -101,6 +102,7 @@
     <ClInclude Include="Guy.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Cursor.h" />
+    <ClInclude Include="NPC.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Tilemap.h" />

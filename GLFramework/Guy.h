@@ -9,6 +9,7 @@ class Guy : public Character
 
 private:
 
+	bool jumpPressed = 0;
 	int score = 0;
 	Timer* tHurtFlash;
 
@@ -21,6 +22,7 @@ public:
 	void update(float dt);
 	void destroy();
 
+	void jump();
 	void damageTaken();
 
 	// === Callbacks ===
