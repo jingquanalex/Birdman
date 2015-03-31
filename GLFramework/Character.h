@@ -10,17 +10,8 @@ class Character : public Sprite
 
 private:
 
-	static std::vector<Character*> listCharacters;
-
-public:
-
-	static void updateCharacters(float dt);
-	static std::vector<Character*> getListCharacters();
-
-private:
-
 	glm::vec3 oldPosition;
-	Tilemap* tilemap;
+	Tilemap* tilemap = NULL;
 	float gravity = 5.0f;
 	
 protected:
@@ -35,11 +26,13 @@ protected:
 
 public:
 
+	Character(Character* character, glm::vec3 position);
 	Character(std::string texPath, glm::vec3 position, glm::vec2 size);
 	~Character();
 
 	// === Functions ===
 
+	void load();
 	void update(float dt);
 
 	void setupMapCollision(Tilemap* tilemap);

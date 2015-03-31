@@ -17,12 +17,15 @@ public:
 
 private:
 
+	bool toDelete = 0;
 	float currentTime = 0.0f;
 	float tickInterval;
 	float tickDuration;
 	float durationLeft;
 	bool isRunning = false;
 	bool ticked = false;
+
+	bool getToDelete() const;
 
 public:
 
@@ -32,6 +35,7 @@ public:
 	// === Functions ===
 
 	void update(float dt);
+	void destroy();
 	bool hasTicked();
 	void start();
 	void stop();

@@ -39,8 +39,6 @@ void Scene::load()
 
 	camera->setPosition(guy->getPosition());
 
-	Sprite::sortToZOrder();
-
 	stateLoaded = 1;
 }
 
@@ -69,7 +67,7 @@ void Scene::update(float dt)
 			// Guy can only kill the npc if he is falling on top of it.
 			float guyPosY = guy->getPosition().y + guy->getBoundingRect().y;
 			float npcPosY = npc->getPosition().y;
-			if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY && guy->getVelocity().y <= 0.0f)
+			if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY)
 			{
 				npc->stomped();
 				guy->bounce();
@@ -99,6 +97,12 @@ void Scene::mouse(int button, int state)
 		//camera->moveTo(cursor->getGlobalPosition());
 		guy->setPosition(cursor->getGlobalPosition());
 		guy->setVelocity(vec3());
+	}
+
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		NPC* nnpc = new NPC(npc, cursor->getPosition());
+		nnpc->setupMapCollision(tilemap);
 	}
 }
 

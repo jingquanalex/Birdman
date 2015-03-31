@@ -9,8 +9,17 @@ vector<Timer*> Timer::listTimers;
 void Timer::updateTimers(float dt)
 {
 	for_each(listTimers.begin(), listTimers.end(), [dt](Timer*& timer) {
-		timer->update(dt);
+		if (timer->getToDelete())
+		{
+			delete timer;
+			timer = NULL;
+		}
+		else
+		{
+			timer->update(dt);
+		}
 	});
+	listTimers.erase(remove(listTimers.begin(), listTimers.end(), static_cast<Timer*>(NULL)), listTimers.end());
 }
 
 Timer::Timer(float interval, float duration)
@@ -22,7 +31,12 @@ Timer::Timer(float interval, float duration)
 
 Timer::~Timer()
 {
-	listTimers.erase(remove(listTimers.begin(), listTimers.end(), this), listTimers.end());
+	//printf("timer deleted \n");
+}
+
+void Timer::destroy()
+{
+	toDelete = 1;
 }
 
 void Timer::update(float dt)
@@ -91,6 +105,11 @@ float Timer::getDuration() const
 bool Timer::getIsRunning() const
 {
 	return isRunning;
+}
+
+bool Timer::getToDelete() const
+{
+	return toDelete;
 }
 
 void Timer::setTickInterval(float interval)

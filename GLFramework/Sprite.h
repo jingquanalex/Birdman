@@ -45,7 +45,7 @@ protected:
 	Sprite* attachedSprite = NULL;
 	Camera* attachedCamera = NULL;
 
-	int texid;
+	int texid = 0;
 	std::string texPath = "";
 	float zOrder = 0.0f;
 	float alpha = 1.0f;
@@ -74,13 +74,13 @@ protected:
 public:
 
 	Sprite();
-	Sprite(Sprite* sprite);
+	Sprite(Sprite* sprite, glm::vec3 position);
 	Sprite(std::string texPath, glm::vec3 position, glm::vec2 size = glm::vec2());
 	~Sprite();
 
 	// === Functions ===
 
-	virtual bool load();
+	bool load();
 	virtual void update(float dt);
 	virtual void draw();
 
@@ -101,6 +101,7 @@ public:
 	glm::vec3 getPosition() const;
 	glm::vec3 getPositionOffset() const;
 	glm::vec2 getSize() const;
+	glm::vec2 getTexSize() const;
 	bool getIsCollidable() const;
 	glm::vec3 getBoundingRectPositionOffset() const;
 	glm::vec2 getBoundingRectSize() const;

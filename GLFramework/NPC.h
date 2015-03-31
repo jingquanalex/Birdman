@@ -18,6 +18,7 @@ class NPC : public Character
 private:
 
 	static std::vector<NPC*> listNPCs;
+	static std::vector<NPC*>::iterator iter;
 
 public:
 
@@ -34,6 +35,7 @@ private:
 
 public:
 
+	NPC(NPC* npc, glm::vec3 position);
 	NPC(glm::vec3 position, NPCTYPE type);
 	~NPC();
 

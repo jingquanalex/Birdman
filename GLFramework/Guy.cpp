@@ -18,7 +18,7 @@ Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 6
 
 Guy::~Guy()
 {
-	delete tHurtFlash;
+	//delete tHurtFlash;
 }
 
 void Guy::update(float dt)
@@ -91,11 +91,7 @@ void Guy::jump()
 
 void Guy::bounce()
 {
-	if (stateJumping == 2)
-	{
-		velocity.y = -velocity.y / 2;
-		stateJumping++;
-	}
+	velocity.y = jumpSpeed / 2;
 }
 
 void Guy::keyboardSpecial(int key)

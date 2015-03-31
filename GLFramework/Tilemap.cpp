@@ -150,7 +150,7 @@ vec3 Tilemap::getPositionAtCoord(int x, int y) const
 
 vec3 Tilemap::getPositionAtCoord(vec2 coord) const
 {
-	return getPositionAtCoord(coord.x, coord.y);
+	return getPositionAtCoord((int)coord.x, (int)coord.y);
 }
 
 glm::vec2 Tilemap::getMapTileSize() const

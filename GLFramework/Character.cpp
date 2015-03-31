@@ -3,21 +3,22 @@
 using namespace std;
 using namespace glm;
 
-vector<Character*> Character::listCharacters;
-
-void Character::updateCharacters(float dt)
+Character::Character(Character* character, vec3 position) : Sprite(character, position)
 {
-	for_each(listCharacters.begin(), listCharacters.end(), [dt](Character*& character) {
-		character->update(dt);
-	});
-}
-
-vector<Character*> Character::getListCharacters()
-{
-	return listCharacters;
+	load();
 }
 
 Character::Character(string texPath, vec3 position, vec2 size) : Sprite(texPath, position, size)
+{
+	load();
+}
+
+Character::~Character()
+{
+
+}
+
+void Character::load()
 {
 	isMovingLeft = false;
 	isMovingRight = false;
@@ -25,90 +26,85 @@ Character::Character(string texPath, vec3 position, vec2 size) : Sprite(texPath,
 	isIdle = false;
 	isOnPlatform = false;
 	isDead = false;
-
-	//listCharacters.push_back(this);
-}
-
-Character::~Character()
-{
-	//listCharacters.erase(remove(listCharacters.begin(), listCharacters.end(), this), listCharacters.end());
 }
 
 void Character::update(float dt)
 {
-	// Check for collision at the topleft and bottomleft points of the sprite bounding box.
-	vec2 coordT = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
-	vec2 coordB = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
-	int valueT = tilemap->getValueAtCoord(coordT);
-	int valueB = tilemap->getValueAtCoord(coordB);
-	if (valueT != -1 || valueB != -1)
+	if (tilemap)
 	{
-		// If colliding on the left side, set 0 velocity and position right next to the wall.
-		collidingX = -1;
-		if (velocity.x < 0.0f) velocity.x = 0.0f;
-		position.x = tilemap->getPositionAtCoord(coordT).x + tilemap->getMapTileSize().x + boundingRectSize.x / 2 + boundingRectPositionOffset.x - 1;
-	}
-	else if (isMovingLeft && !stateKnockedBack)
-	{
-		collidingX = 0; // Is the character colliding horizontally. -1 : left, 1 : right
-		velocity.x = -moveSpeed;
-	}
+		// Check for collision at the topleft and bottomleft points of the sprite bounding box.
+		vec2 coordT = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
+		vec2 coordB = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
+		int valueT = tilemap->getValueAtCoord(coordT);
+		int valueB = tilemap->getValueAtCoord(coordB);
+		if (valueT != -1 || valueB != -1)
+		{
+			// If colliding on the left side, set 0 velocity and position right next to the wall.
+			collidingX = -1;
+			if (velocity.x < 0.0f) velocity.x = 0.0f;
+			position.x = tilemap->getPositionAtCoord(coordT).x + tilemap->getMapTileSize().x + boundingRectSize.x / 2 + boundingRectPositionOffset.x - 1;
+		}
+		else if (isMovingLeft && !stateKnockedBack)
+		{
+			collidingX = 0; // Is the character colliding horizontally. -1 : left, 1 : right
+			velocity.x = -moveSpeed;
+		}
 
-	// Check for collision at the topright and bottomright points of the sprite bounding box.
-	coordT = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
-	coordB = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
-	valueT = tilemap->getValueAtCoord(coordT);
-	valueB = tilemap->getValueAtCoord(coordB);
-	if (valueT != -1 || valueB != -1)
-	{
-		collidingX = 1;
-		if (velocity.x > 0.0f) velocity.x = 0.0f;
-		position.x = tilemap->getPositionAtCoord(coordT).x - boundingRectSize.x / 2 + boundingRectPositionOffset.x;
-	}
-	else if (isMovingRight && !stateKnockedBack)
-	{
-		collidingX = 0;
-		velocity.x = moveSpeed;
-	}
+		// Check for collision at the topright and bottomright points of the sprite bounding box.
+		coordT = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
+		coordB = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
+		valueT = tilemap->getValueAtCoord(coordT);
+		valueB = tilemap->getValueAtCoord(coordB);
+		if (valueT != -1 || valueB != -1)
+		{
+			collidingX = 1;
+			if (velocity.x > 0.0f) velocity.x = 0.0f;
+			position.x = tilemap->getPositionAtCoord(coordT).x - boundingRectSize.x / 2 + boundingRectPositionOffset.x;
+		}
+		else if (isMovingRight && !stateKnockedBack)
+		{
+			collidingX = 0;
+			velocity.x = moveSpeed;
+		}
 
-	// Stop if not moving left or right.
-	if (!stateKnockedBack && (!(isMovingLeft || isMovingRight) || isMovingLeft && isMovingRight))
-	{
-		velocity.x = 0.0f;
-	}
+		// Stop if not moving left or right.
+		if (!stateKnockedBack && (!(isMovingLeft || isMovingRight) || isMovingLeft && isMovingRight))
+		{
+			velocity.x = 0.0f;
+		}
 
-	// Always fall if not colliding.
-	// Check for collision at the bottomleft and bottomright points of the sprite bounding box.
-	vec2 coordL = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2 + 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	vec2 coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	int valueL = tilemap->getValueAtCoord(coordL);
-	int valueR = tilemap->getValueAtCoord(coordR);
-	if ((valueL != -1 || valueR != -1) && velocity.y <= 0.0f)
-	{
-		isOnPlatform = 1;
-		velocity.y = 0;
-		position.y = tilemap->getPositionAtCoord(coordL).y + boundingRectSize.y / 2 - boundingRectPositionOffset.y;
-	}
-	else
-	{
-		isOnPlatform = 0;
-		velocity.y += -gravity;
-	}
+		// Always fall if not colliding.
+		// Check for collision at the bottomleft and bottomright points of the sprite bounding box.
+		vec2 coordL = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2 + 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+		vec2 coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+		int valueL = tilemap->getValueAtCoord(coordL);
+		int valueR = tilemap->getValueAtCoord(coordR);
+		if ((valueL != -1 || valueR != -1) && velocity.y <= 0.0f)
+		{
+			isOnPlatform = 1;
+			velocity.y = 0;
+			position.y = tilemap->getPositionAtCoord(coordL).y + boundingRectSize.y / 2 - boundingRectPositionOffset.y;
+		}
+		else
+		{
+			isOnPlatform = 0;
+			velocity.y += -gravity;
+		}
 
-	//printf("%f, %f \n", position.x, position.y);
-	
-	// Celling collision
-	// Check for collision at the topleft and topright points of the sprite bounding box.
-	coordL = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2 + 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
-	valueL = tilemap->getValueAtCoord(coordL);
-	valueR = tilemap->getValueAtCoord(coordR);
-	if (valueL != -1 || valueR != -1)
-	{
-		velocity.y = -velocity.y / 2;
-		position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 + boundingRectPositionOffset.y;
-	}
+		//printf("%f, %f \n", position.x, position.y);
 
+		// Celling collision
+		// Check for collision at the topleft and topright points of the sprite bounding box.
+		coordL = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2 + 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+		coordR = tilemap->getCoordAtPos(position + vec3(boundingRectSize.x / 2 - 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
+		valueL = tilemap->getValueAtCoord(coordL);
+		valueR = tilemap->getValueAtCoord(coordR);
+		if (valueL != -1 || valueR != -1)
+		{
+			velocity.y = -velocity.y / 2;
+			position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 + boundingRectPositionOffset.y;
+		}
+	}
 	// Jumping fall back on platform
 	if (stateJumping >= 2 && isOnPlatform)
 	{

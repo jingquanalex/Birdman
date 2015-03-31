@@ -25,13 +25,15 @@ void Sprite::drawSprites()
 Sprite::Sprite()
 {
 	this->position = vec3();
+	sortToZOrder();
 }
 
-// Make a copy of a sprite.
-Sprite::Sprite(Sprite* sprite)
+// Make a copy of a sprite at a specified location.
+Sprite::Sprite(Sprite* sprite, vec3 position)
 {
 	this->texid = sprite->getTexID();
-	this->position = sprite->getPosition();
+	this->position = position;
+	this->texSize = sprite->getTexSize();
 	this->size = sprite->getSize();
 
 	setupCollision();
@@ -55,7 +57,7 @@ Sprite::~Sprite()
 	listSprites.erase(remove(listSprites.begin(), listSprites.end(), this), listSprites.end());
 	delete quadVert;
 	delete quadCoord;
-	if (animTimer) delete animTimer;
+	if (animTimer) animTimer->destroy();
 }
 
 bool Sprite::load()
@@ -69,6 +71,8 @@ bool Sprite::load()
 		zOrder = g_zOrder;
 		g_zOrder -= 0.1f;
 	}
+
+	sortToZOrder();
 
 	// Define quad vertices and texcoords.
 	quadVert = new float[12] {
@@ -87,39 +91,43 @@ bool Sprite::load()
 
 	quadCount = 4;
 
-	// Get texture size
-	unsigned char* image = NULL;
-	int texWidth, texHeight;
-	image = SOIL_load_image(texPath.c_str(), &texWidth, &texHeight, 0, 0);
-	if (image == NULL)
-	{
-		cout << "SOIL error: " << SOIL_last_result() << " \"" << texPath << "\"" << endl;
-		return false;
-	}
-
-	SOIL_free_image_data(image);
-	texSize = vec2(texWidth, texHeight);
-
-	// Set sprite size to texture's size, if size not specified.
-	if (size == vec2())
-	{
-		size = texSize;
-	}
-
-	// Load texture
-	texid = SOIL_load_OGL_texture(texPath.c_str(), 0, 0, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
+	// If no texture is assigned to object, load one. It will be assigned when cloning a sprite.
 	if (texid == 0)
 	{
-		cout << "SOIL error: " << SOIL_last_result() << " \"" << texPath << "\"" << endl;
-		return false;
-	}
+		// Get texture size
+		unsigned char* image = NULL;
+		int texWidth, texHeight;
+		image = SOIL_load_image(texPath.c_str(), &texWidth, &texHeight, 0, 0);
+		if (image == NULL)
+		{
+			cout << "SOIL error: " << SOIL_last_result() << " \"" << texPath << "\"" << endl;
+			return false;
+		}
 
-	// Set default texture parameters for sprites
-	glBindTexture(GL_TEXTURE_2D, texid);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		SOIL_free_image_data(image);
+		texSize = vec2(texWidth, texHeight);
+
+		// Set sprite size to texture's size, if size not specified.
+		if (size == vec2())
+		{
+			size = texSize;
+		}
+
+		// Load texture
+		texid = SOIL_load_OGL_texture(texPath.c_str(), 0, 0, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
+		if (texid == 0)
+		{
+			cout << "SOIL error: " << SOIL_last_result() << " \"" << texPath << "\"" << endl;
+			return false;
+		}
+
+		// Set default texture parameters for sprites
+		glBindTexture(GL_TEXTURE_2D, texid);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
 
 	return true;
 }
@@ -334,6 +342,11 @@ vec3 Sprite::getPositionOffset() const
 vec2 Sprite::getSize() const
 {
 	return size;
+}
+
+vec2 Sprite::getTexSize() const
+{
+	return texSize;
 }
 
 // Check if the object is collidable.

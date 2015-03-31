@@ -4,6 +4,7 @@ using namespace std;
 using namespace glm;
 
 vector<NPC*> NPC::listNPCs;
+std::vector<NPC*>::iterator NPC::iter;
 
 vector<NPC*> NPC::getListNPCs()
 {
@@ -12,15 +13,57 @@ vector<NPC*> NPC::getListNPCs()
 
 void NPC::updateNPCs(float dt)
 {
+	/*for (iter = listNPCs.begin(); iter != listNPCs.end;)
+	{
+		if ((*iter)->getIsDead())
+		{
+			iter = 
+		}
+		(*iter)->update(dt);
+	}*/
 	for_each(listNPCs.begin(), listNPCs.end(), [dt](NPC*& npc) {
-		npc->update(dt);
+		if (npc->getIsDead())
+		{
+			delete npc;
+			npc = NULL;
+		}
+		else
+		{
+			npc->update(dt);
+		}
 	});
+	listNPCs.erase(remove(listNPCs.begin(), listNPCs.end(), static_cast<NPC*>(NULL)), listNPCs.end());
+}
+
+NPC::NPC(NPC* npc, vec3 position) : Character(npc, position)
+{
+	jumpSpeed = 600.0f;
+	moveSpeed = 350.0f;
+	if (type == NPCTYPE::RED)
+	{
+		setupAnimation(vec2(64, 64), 0.1f, 18, 21);
+	}
+	else
+	{
+		setupAnimation(vec2(64, 64), 0.1f, 54, 57);
+	}
+	startAnimation();
+	setupCollision(vec2(38, 50), vec3(0, -5, 0));
+
+	isNPC = 1;
+	this->type = npc->getType();
+	state = NPCSTATE::MOVING;
+	isMovingRight = 1;
+
+	// Duration of sprite stomped state, before fading state.
+	stompTimer = new Timer(0.0f, 1.0f);
+	fadeTimer = new Timer(0.1f, 0.0f);
+
+	listNPCs.push_back(this);
 }
 
 NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", position, vec2(64, 64))
 {
-	listNPCs.push_back(this);
-
 	jumpSpeed = 600.0f;
 	moveSpeed = 350.0f;
 	if (type == NPCTYPE::RED)
@@ -43,13 +86,16 @@ NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", positi
 	// Duration of sprite stomped state, before fading state.
 	stompTimer = new Timer(0.0f, 1.0f);
 	fadeTimer = new Timer(0.1f, 0.0f);
+
+	listNPCs.push_back(this);
 }
 
 NPC::~NPC()
 {
-	listNPCs.erase(remove(listNPCs.begin(), listNPCs.end(), this), listNPCs.end());
-	delete stompTimer;
-	delete fadeTimer;
+	stompTimer->destroy();
+	fadeTimer->destroy();
+	//delete stompTimer;
+	//delete fadeTimer;
 }
 
 void NPC::update(float dt)
@@ -95,8 +141,6 @@ void NPC::update(float dt)
 	}
 
 	Character::update(dt);
-
-	if (isDead) delete this;
 }
 
 void NPC::stomped()
