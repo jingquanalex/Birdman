@@ -7,7 +7,6 @@ Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 6
 {
 	// Timer for damage taken sprite flash.
 	tHurtFlash = new Timer(0.07f, 1.5f);
-	tHurtFlash->stop();
 
 	jumpSpeed = 1000.0f;
 	moveSpeed = 550.0f;
@@ -15,6 +14,11 @@ Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 6
 	startAnimation();
 	setupCollision(vec2(38, 50), vec3(0, -5, 0));
 	//setBoundingRectVisible(1);
+}
+
+Guy::~Guy()
+{
+	delete tHurtFlash;
 }
 
 void Guy::update(float dt)
@@ -66,13 +70,6 @@ void Guy::update(float dt)
 	Character::update(dt);
 }
 
-void Guy::destroy()
-{
-	Character::destroy();
-	tHurtFlash->destroy();
-	delete this;
-}
-
 void Guy::damageTaken()
 {
 	if (!isInvuln)
@@ -86,9 +83,18 @@ void Guy::damageTaken()
 
 void Guy::jump()
 {
-	if (stateJumping == 0)
+	if (stateJumping == 0 && isOnPlatform)
 	{
 		stateJumping = 1;
+	}
+}
+
+void Guy::bounce()
+{
+	if (stateJumping == 2)
+	{
+		velocity.y = -velocity.y / 2;
+		stateJumping++;
 	}
 }
 

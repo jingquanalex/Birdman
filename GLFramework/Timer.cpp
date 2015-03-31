@@ -6,6 +6,13 @@ using namespace std;
 
 vector<Timer*> Timer::listTimers;
 
+void Timer::updateTimers(float dt)
+{
+	for_each(listTimers.begin(), listTimers.end(), [dt](Timer*& timer) {
+		timer->update(dt);
+	});
+}
+
 Timer::Timer(float interval, float duration)
 {
 	this->tickInterval = interval;
@@ -13,12 +20,9 @@ Timer::Timer(float interval, float duration)
 	listTimers.push_back(this);
 }
 
-void Timer::updateTimers(float dt)
+Timer::~Timer()
 {
-	for (Timer* timer : listTimers)
-	{
-		timer->update(dt);
-	}
+	listTimers.erase(remove(listTimers.begin(), listTimers.end(), this), listTimers.end());
 }
 
 void Timer::update(float dt)
@@ -46,13 +50,6 @@ void Timer::update(float dt)
 	{
 		isRunning = false;
 	}
-}
-
-Timer* Timer::destroy()
-{
-	listTimers.erase(remove(listTimers.begin(), listTimers.end(), this), listTimers.end());
-	delete this;
-	return NULL;
 }
 
 bool Timer::hasTicked()

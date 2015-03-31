@@ -16,13 +16,14 @@ private:
 public:
 
 	Guy(glm::vec3 position);
+	~Guy();
 
 	// === Functions ===
 
 	void update(float dt);
-	void destroy();
 
 	void jump();
+	void bounce();
 	void damageTaken();
 
 	// === Callbacks ===

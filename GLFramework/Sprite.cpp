@@ -8,6 +8,20 @@ using namespace std;
 vector<Sprite*> Sprite::listSprites;
 float Sprite::g_zOrder = -1.0f;
 
+void Sprite::sortToZOrder()
+{
+	sort(listSprites.begin(), listSprites.end(), [](Sprite* sprite1, Sprite* sprite2) {
+		return sprite1->getZOrder() < sprite2->getZOrder();
+	});
+}
+
+void Sprite::drawSprites()
+{
+	for_each(listSprites.begin(), listSprites.end(), [](Sprite*& sprite) {
+		if (sprite->getVisibie()) sprite->draw();
+	});
+}
+
 Sprite::Sprite()
 {
 	this->position = vec3();
@@ -36,19 +50,12 @@ Sprite::Sprite(string texPath, vec3 position, vec2 size)
 	load();
 }
 
-void Sprite::sortToZOrder()
+Sprite::~Sprite()
 {
-	sort(listSprites.begin(), listSprites.end(), [](Sprite* sprite1, Sprite* sprite2) {
-		return sprite1->getZOrder() < sprite2->getZOrder();
-	});
-}
-
-void Sprite::drawSprites()
-{
-	for (Sprite* sprite : listSprites)
-	{
-		if (sprite->getVisibie()) sprite->draw();
-	}
+	listSprites.erase(remove(listSprites.begin(), listSprites.end(), this), listSprites.end());
+	delete quadVert;
+	delete quadCoord;
+	if (animTimer) delete animTimer;
 }
 
 bool Sprite::load()
@@ -217,16 +224,6 @@ void Sprite::draw()
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-}
-
-void Sprite::destroy()
-{
-	listSprites.erase(remove(listSprites.begin(), listSprites.end(), this), listSprites.end());
-
-	delete quadVert;
-	delete quadCoord;
-	if (hasAnimation) animTimer->destroy();
-	delete this;
 }
 
 // Setup spritesheet animation. Framesize takes in a vec 2 that defines the area of the spritesheet to
@@ -445,11 +442,13 @@ void Sprite::setFrameInterval(float interval)
 
 void Sprite::startAnimation()
 {
+	animTimer->start();
 	isAnimating = true;
 }
 
 void Sprite::stopAnimation()
 {
+	animTimer->stop();
 	isAnimating = false;
 }
 

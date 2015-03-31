@@ -22,13 +22,13 @@ private:
 public:
 
 	Scene(Camera* camera, Cursor* cursor);
+	~Scene();
 
 	// === Functions ===
 
 	void load();
 	void update(float dt);
 	void draw();
-	void destroy();
 
 	// === Callbacks ===
 

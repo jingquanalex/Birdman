@@ -5,6 +5,18 @@ using namespace glm;
 
 vector<NPC*> NPC::listNPCs;
 
+vector<NPC*> NPC::getListNPCs()
+{
+	return listNPCs;
+}
+
+void NPC::updateNPCs(float dt)
+{
+	for_each(listNPCs.begin(), listNPCs.end(), [dt](NPC*& npc) {
+		npc->update(dt);
+	});
+}
+
 NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", position, vec2(64, 64))
 {
 	listNPCs.push_back(this);
@@ -24,17 +36,24 @@ NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", positi
 	//setBoundingRectVisible(1);
 
 	isNPC = 1;
+	this->type = type;
 	state = NPCSTATE::MOVING;
 	isMovingRight = 1;
 
-	stompTimer = new Timer(0.0f, 2.0f);
-	fadeTimer = new Timer(0.1f, 4.0f);
+	// Duration of sprite stomped state, before fading state.
+	stompTimer = new Timer(0.0f, 1.0f);
+	fadeTimer = new Timer(0.1f, 0.0f);
+}
+
+NPC::~NPC()
+{
+	listNPCs.erase(remove(listNPCs.begin(), listNPCs.end(), this), listNPCs.end());
+	delete stompTimer;
+	delete fadeTimer;
 }
 
 void NPC::update(float dt)
 {
-	Character::update(dt);
-
 	if (state == NPCSTATE::MOVING)
 	{
 		if (isMovingLeft && collidingX == -1)
@@ -52,6 +71,7 @@ void NPC::update(float dt)
 	}
 	else if (state == NPCSTATE::STOMPED)
 	{
+		isThreat = 0;
 		isMovingLeft = 0;
 		isMovingRight = 0;
 		setFrameRange(8, 8);
@@ -66,25 +86,39 @@ void NPC::update(float dt)
 	{
 		if (fadeTimer->hasTicked())
 		{
-			alpha -= 1.0 / (fadeTimer->getDuration() / fadeTimer->getTickInterval());
+			alpha -= 0.05f;
+			if (alpha <= 0.0f)
+			{
+				isDead = 1;
+			}
 		}
 	}
-}
 
-void NPC::destroy()
-{
-	Character::destroy();
-	delete this;
+	Character::update(dt);
+
+	if (isDead) delete this;
 }
 
 void NPC::stomped()
 {
-	state = NPCSTATE::STOMPED;
-	stompTimer->reset();
-	stompTimer->start();
+	if (isThreat)
+	{
+		state = NPCSTATE::STOMPED;
+		stompTimer->start();
+	}
 }
 
-vector<NPC*> NPC::getListNPCs()
+NPCSTATE NPC::getState() const
 {
-	return listNPCs;
+	return state;
+}
+
+NPCTYPE NPC::getType() const
+{
+	return type;
+}
+
+bool NPC::getIsThreat() const
+{
+	return isThreat;
 }

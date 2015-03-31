@@ -31,11 +31,6 @@ void Cursor::draw()
 	Sprite::draw();
 }
 
-void Cursor::destroy()
-{
-	Sprite::destroy();
-}
-
 vec3 Cursor::getGlobalPosition() const
 {
 	return globalPosition;

@@ -5,6 +5,18 @@ using namespace glm;
 
 vector<Character*> Character::listCharacters;
 
+void Character::updateCharacters(float dt)
+{
+	for_each(listCharacters.begin(), listCharacters.end(), [dt](Character*& character) {
+		character->update(dt);
+	});
+}
+
+vector<Character*> Character::getListCharacters()
+{
+	return listCharacters;
+}
+
 Character::Character(string texPath, vec3 position, vec2 size) : Sprite(texPath, position, size)
 {
 	isMovingLeft = false;
@@ -12,22 +24,18 @@ Character::Character(string texPath, vec3 position, vec2 size) : Sprite(texPath,
 	isInvuln = false;
 	isIdle = false;
 	isOnPlatform = false;
+	isDead = false;
 
-	listCharacters.push_back(this);
+	//listCharacters.push_back(this);
 }
 
-void Character::updateCharacters(float dt)
+Character::~Character()
 {
-	for (Character* character : listCharacters)
-	{
-		character->update(dt);
-	}
+	//listCharacters.erase(remove(listCharacters.begin(), listCharacters.end(), this), listCharacters.end());
 }
 
 void Character::update(float dt)
 {
-	// Movement left and right
-	
 	// Check for collision at the topleft and bottomleft points of the sprite bounding box.
 	vec2 coordT = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, boundingRectSize.y / 2 - 5, 0) + boundingRectPositionOffset);
 	vec2 coordB = tilemap->getCoordAtPos(position + vec3(-boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
@@ -102,13 +110,13 @@ void Character::update(float dt)
 	}
 
 	// Jumping fall back on platform
-	if (stateJumping == 2 && isOnPlatform)
+	if (stateJumping >= 2 && isOnPlatform)
 	{
 		stateJumping = 0;
 	}
 
 	// Jumping start
-	if (stateJumping == 1 && isOnPlatform)
+	if (stateJumping == 1)
 	{
 		stateJumping = 2;
 		velocity.y = jumpSpeed;
@@ -137,13 +145,6 @@ void Character::update(float dt)
 	position += velocity * dt;
 
 	Sprite::update(dt);
-}
-
-void Character::destroy()
-{
-	Sprite::destroy();
-	tilemap->destroy();
-	delete this;
 }
 
 void Character::setupMapCollision(Tilemap* tilemap)
@@ -176,9 +177,9 @@ bool Character::getIsOnPlatform() const
 	return isOnPlatform;
 }
 
-vector<Character*> Character::getListCharacters()
+bool Character::getIsDead() const
 {
-	return listCharacters;
+	return isDead;
 }
 
 void Character::setMoveSpeed(float speed)

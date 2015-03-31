@@ -17,6 +17,11 @@ Scene::Scene(Camera* camera, Cursor* cursor)
 	this->cursor = cursor;
 }
 
+Scene::~Scene()
+{
+	
+}
+
 void Scene::load()
 {
 	background = new Sprite("media\\img\\bg_brown.jpg", vec3(), vec2(window_width, window_height));
@@ -51,32 +56,35 @@ void Scene::update(float dt)
 	if (!stateLoaded) return;
 
 	background->update(dt);
-	Character::updateCharacters(dt);
+	guy->update(dt);
+	NPC::updateNPCs(dt);
+
 	camera->moveTo(guy->getPosition() + vec3(0, 50, 0));
 
 	// Character collision logics
 	for (NPC* npc : NPC::getListNPCs())
 	{
-		if (guy->isCollidingWith(npc))
+		if (npc->getIsThreat() && guy->isCollidingWith(npc) && npc->getType() == NPCTYPE::RED)
 		{
-			if (guy->getIsOnPlatform())
+			// Guy can only kill the npc if he is falling on top of it.
+			float guyPosY = guy->getPosition().y + guy->getBoundingRect().y;
+			float npcPosY = npc->getPosition().y;
+			if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY && guy->getVelocity().y <= 0.0f)
 			{
-				guy->damageTaken();
+				npc->stomped();
+				guy->bounce();
 			}
 			else
 			{
-				npc->stomped();
+				guy->damageTaken();
 			}
 		}
 	}
+
+	
 }
 
 void Scene::draw()
-{
-	if (!stateLoaded) return;
-}
-
-void Scene::destroy()
 {
 	if (!stateLoaded) return;
 }

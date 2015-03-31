@@ -16,12 +16,12 @@ private:
 public:
 
 	Cursor(std::string imgPath = "media\\img\\cursor.png", glm::vec2 size = glm::vec2(32.0f, 32.0f));
+	~Cursor();
 
 	// === Functions ===
 
 	void update(float dt, Camera* camera, float mouseX, float mouseY);
 	void draw();
-	void destroy();
 
 	glm::vec3 getGlobalPosition() const;
 	glm::vec3 getLocalPosition() const;

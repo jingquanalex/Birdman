@@ -27,6 +27,7 @@ private:
 public:
 
 	Camera(int width, int height);
+	~Camera();
 
 	// === Functions ===
 

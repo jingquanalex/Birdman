@@ -23,13 +23,13 @@ private:
 public:
 
 	Tilemap(std::string tileTexture, glm::vec2 tileSize, std::string mapData, glm::vec2 mapTileSize);
+	~Tilemap();
 
 	// === Functions ===
 
 	void load(std::string mapData);
 	void update(float dt);
 	void draw();
-	void destroy();
 
 	void loadMap(std::string mapData);
 	glm::vec2 getCoordAtPos(glm::vec3 position) const;

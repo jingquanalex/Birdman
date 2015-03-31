@@ -9,6 +9,7 @@ void init()
 	cursor = new Cursor();
 	scene = new Scene(camera, cursor);
 	fpsTimer = new Timer(1.0f);
+	fpsTimer->start();
 
 	scene->load();
 }

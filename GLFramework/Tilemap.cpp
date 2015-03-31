@@ -111,12 +111,6 @@ void Tilemap::draw()
 	Sprite::draw();
 }
 
-void Tilemap::destroy()
-{
-	Sprite::destroy();
-	delete this;
-}
-
 glm::vec2 Tilemap::getCoordAtPos(vec3 position) const
 {
 	if (position.x >= 0.0f && position.y <= 0.0f)

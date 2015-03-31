@@ -27,7 +27,6 @@ public:
 
 	static void sortToZOrder();
 	static void drawSprites();
-	static void updateSprites();
 
 protected:
 
@@ -62,7 +61,7 @@ protected:
 	glm::vec2 boundingRectSize = glm::vec2(0.0f);
 	glm::vec4 boundingRect = glm::vec4(0.0f);
 
-	Timer* animTimer;
+	Timer* animTimer = NULL;
 	bool hasAnimation = false;
 	bool isAnimating = false;
 	int startFrame, endFrame;
@@ -77,13 +76,13 @@ public:
 	Sprite();
 	Sprite(Sprite* sprite);
 	Sprite(std::string texPath, glm::vec3 position, glm::vec2 size = glm::vec2());
+	~Sprite();
 
 	// === Functions ===
 
 	virtual bool load();
 	virtual void update(float dt);
 	virtual void draw();
-	virtual void destroy();
 
 	void setupAnimation(glm::vec2 frameSize, float frameInterval, int startFrame = 0, int endFrame = 0);
 	void setFrameInterval(float interval);

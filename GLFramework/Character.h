@@ -12,6 +12,13 @@ private:
 
 	static std::vector<Character*> listCharacters;
 
+public:
+
+	static void updateCharacters(float dt);
+	static std::vector<Character*> getListCharacters();
+
+private:
+
 	glm::vec3 oldPosition;
 	Tilemap* tilemap;
 	float gravity = 5.0f;
@@ -21,7 +28,7 @@ protected:
 	glm::vec3 velocity;
 	float moveSpeed;
 	float jumpSpeed;
-	bool isMovingLeft, isMovingRight, isOnPlatform, isInvuln, isIdle;
+	bool isMovingLeft, isMovingRight, isOnPlatform, isInvuln, isIdle, isDead;
 	int collidingX = 0, collidingY = 0;
 	int stateKnockedBack = 0, stateJumping = 0;
 	bool isNPC = 0;
@@ -29,14 +36,11 @@ protected:
 public:
 
 	Character(std::string texPath, glm::vec3 position, glm::vec2 size);
+	~Character();
 
 	// === Functions ===
 
-	static void updateCharacters(float dt);
-	static std::vector<Character*> getListCharacters();
-
 	void update(float dt);
-	void destroy();
 
 	void setupMapCollision(Tilemap* tilemap);
 
@@ -47,6 +51,7 @@ public:
 	glm::vec3 getVelocity() const;
 	bool getIsNPC() const;
 	bool getIsOnPlatform() const;
+	bool getIsDead() const;
 	
 	void setMoveSpeed(float speed);
 	void setJumpHeight(float height);

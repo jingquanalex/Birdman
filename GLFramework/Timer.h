@@ -11,23 +11,27 @@ private:
 
 	static std::vector<Timer*> listTimers;
 
+public:
+
+	static void updateTimers(float dt);
+
+private:
+
 	float currentTime = 0.0f;
 	float tickInterval;
 	float tickDuration;
 	float durationLeft;
-	bool isRunning = true;
+	bool isRunning = false;
 	bool ticked = false;
 
 public:
 
 	Timer(float interval, float duration = 0);
+	~Timer();
 
 	// === Functions ===
 
-	static void updateTimers(float dt);
-
 	void update(float dt);
-	Timer* destroy();
 	bool hasTicked();
 	void start();
 	void stop();
