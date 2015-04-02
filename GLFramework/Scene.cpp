@@ -6,11 +6,6 @@ using namespace std;
 extern int window_width;
 extern int window_height;
 
-Sprite* background;
-Tilemap* tilemap;
-Guy* guy;
-NPC* npc;
-
 Scene::Scene(Camera* camera, Cursor* cursor)
 {
 	this->camera = camera;
@@ -34,8 +29,7 @@ void Scene::load()
 	guy = new Guy(vec3(440, -2155, 0));
 	guy->setupMapCollision(tilemap);
 
-	npc = new NPC(vec3(1430, -2200, 0), NPCTYPE::RED);
-	npc->setupMapCollision(tilemap);
+	npc = new NPC(vec3(), NPCTYPE::RED);
 
 	camera->setPosition(guy->getPosition());
 
@@ -44,14 +38,14 @@ void Scene::load()
 
 void Scene::update(float dt)
 {
+	if (!stateLoaded) return;
+
 	// Prevent dt spike during loading.
 	if (stateLoaded == 1)
 	{
-		dt = 0.0f;
+		dt = 0.001f;
 		stateLoaded = 2;
 	}
-
-	if (!stateLoaded) return;
 
 	background->update(dt);
 	guy->update(dt);
@@ -62,12 +56,12 @@ void Scene::update(float dt)
 	// Character collision logics
 	for (NPC* npc : NPC::getListNPCs())
 	{
-		if (npc->getIsThreat() && guy->isCollidingWith(npc) && npc->getType() == NPCTYPE::RED)
+		if (!guy->getIsInvuln() && npc->getIsThreat() && guy->isCollidingWith(npc) && npc->getType() == NPCTYPE::RED)
 		{
 			// Guy can only kill the npc if he is falling on top of it.
 			float guyPosY = guy->getPosition().y + guy->getBoundingRect().y;
 			float npcPosY = npc->getPosition().y;
-			if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY)
+			if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY && guy->getVelocity().y <= 0.0f)
 			{
 				npc->stomped();
 				guy->bounce();
@@ -78,8 +72,6 @@ void Scene::update(float dt)
 			}
 		}
 	}
-
-	
 }
 
 void Scene::draw()

@@ -18,7 +18,6 @@ class NPC : public Character
 private:
 
 	static std::vector<NPC*> listNPCs;
-	static std::vector<NPC*>::iterator iter;
 
 public:
 

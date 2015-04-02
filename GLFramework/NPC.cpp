@@ -4,7 +4,6 @@ using namespace std;
 using namespace glm;
 
 vector<NPC*> NPC::listNPCs;
-std::vector<NPC*>::iterator NPC::iter;
 
 vector<NPC*> NPC::getListNPCs()
 {
@@ -13,14 +12,6 @@ vector<NPC*> NPC::getListNPCs()
 
 void NPC::updateNPCs(float dt)
 {
-	/*for (iter = listNPCs.begin(); iter != listNPCs.end;)
-	{
-		if ((*iter)->getIsDead())
-		{
-			iter = 
-		}
-		(*iter)->update(dt);
-	}*/
 	for_each(listNPCs.begin(), listNPCs.end(), [dt](NPC*& npc) {
 		if (npc->getIsDead())
 		{
@@ -50,10 +41,9 @@ NPC::NPC(NPC* npc, vec3 position) : Character(npc, position)
 	startAnimation();
 	setupCollision(vec2(38, 50), vec3(0, -5, 0));
 
-	isNPC = 1;
 	this->type = npc->getType();
 	state = NPCSTATE::MOVING;
-	isMovingRight = 1;
+	isMovingLeft = 1;
 
 	// Duration of sprite stomped state, before fading state.
 	stompTimer = new Timer(0.0f, 1.0f);
@@ -78,10 +68,9 @@ NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", positi
 	setupCollision(vec2(38, 50), vec3(0, -5, 0));
 	//setBoundingRectVisible(1);
 
-	isNPC = 1;
 	this->type = type;
 	state = NPCSTATE::MOVING;
-	isMovingRight = 1;
+	isMovingLeft = 1;
 
 	// Duration of sprite stomped state, before fading state.
 	stompTimer = new Timer(0.0f, 1.0f);
@@ -94,8 +83,6 @@ NPC::~NPC()
 {
 	stompTimer->destroy();
 	fadeTimer->destroy();
-	//delete stompTimer;
-	//delete fadeTimer;
 }
 
 void NPC::update(float dt)

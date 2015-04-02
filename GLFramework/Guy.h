@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Character.h"
+#include "Projectile.h"
 
 #define KEY_SPACE 32
 
@@ -9,9 +10,14 @@ class Guy : public Character
 
 private:
 
-	bool jumpPressed = 0;
-	int score = 0;
+	Projectile* projectile;
 	Timer* tHurtFlash;
+
+	bool jumpPressed = 0, punchPressed = 0, kickPressed = 0;
+	int score = 0;
+	float oldMoveSpeed;
+	int statePunching = 0, stateKicking = 0;
+	int kickCharges = 1;
 
 public:
 
@@ -25,6 +31,8 @@ public:
 	void jump();
 	void bounce();
 	void damageTaken();
+	void punch();
+	void kick();
 
 	// === Callbacks ===
 

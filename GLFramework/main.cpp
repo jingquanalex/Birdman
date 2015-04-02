@@ -53,6 +53,7 @@ void display()
 	Sprite::drawSprites();
 
 	glutSwapBuffers();
+	glFinish();
 }
 
 // Window dimension changed, recreate camera proj matrix.

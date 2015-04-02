@@ -18,6 +18,10 @@ private:
 	int stateLoaded = 0;
 	Camera* camera;
 	Cursor* cursor;
+	Sprite* background;
+	Tilemap* tilemap;
+	Guy* guy;
+	NPC* npc;
 
 public:
 

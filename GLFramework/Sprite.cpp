@@ -314,6 +314,11 @@ bool Sprite::isCollidingWith(Sprite* sprite)
 	return isColliding;
 }
 
+bool Sprite::isInRangeOf(Sprite* sprite, float distance) const
+{
+	return glm::distance2(position, sprite->getPosition()) <= distance * distance;
+}
+
 string Sprite::getName() const
 {
 	return name;
@@ -468,6 +473,11 @@ void Sprite::stopAnimation()
 bool Sprite::getVisibie() const
 {
 	return isVisible;
+}
+
+bool Sprite::getIsFlippedX() const
+{
+	return isFlippedX;
 }
 
 void Sprite::setVisible(bool isVisible)

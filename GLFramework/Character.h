@@ -10,19 +10,21 @@ class Character : public Sprite
 
 private:
 
-	glm::vec3 oldPosition;
-	Tilemap* tilemap = NULL;
-	float gravity = 5.0f;
+	
 	
 protected:
 
+	Tilemap* tilemap = NULL;
+	float gravity = 2995.0f;
+
+	glm::vec3 oldPosition;
 	glm::vec3 velocity;
 	float moveSpeed;
 	float jumpSpeed;
 	bool isMovingLeft, isMovingRight, isOnPlatform, isInvuln, isIdle, isDead;
 	int collidingX = 0, collidingY = 0;
 	int stateKnockedBack = 0, stateJumping = 0;
-	bool isNPC = 0;
+	bool hasGravity = 1;
 
 public:
 
@@ -32,7 +34,6 @@ public:
 
 	// === Functions ===
 
-	void load();
 	void update(float dt);
 
 	void setupMapCollision(Tilemap* tilemap);
@@ -42,12 +43,14 @@ public:
 	float getMoveSpeed() const;
 	float getJumpHeight() const;
 	glm::vec3 getVelocity() const;
-	bool getIsNPC() const;
 	bool getIsOnPlatform() const;
 	bool getIsDead() const;
+	int getCollidingX() const;
+	bool getIsInvuln() const;
 	
 	void setMoveSpeed(float speed);
 	void setJumpHeight(float height);
 	void setVelocity(glm::vec3 velocity);
+	void setHasGravity(bool hasGravity);
 
 };

@@ -90,12 +90,7 @@ void Camera::update(float dt)
 	// If not moving, decelerate.
 	if (!(isMovingUp || isMovingDown) || isMovingUp && isMovingDown)
 	{
-		velocity.y /= 1.017f;
-	}
-
-	if (!(isMovingLeft || isMovingRight) || isMovingLeft && isMovingRight)
-	{
-		velocity.x /= 1.017f;
+		velocity += -velocity * 6 * dt;
 	}
 
 	// If velocity is minimum, set to zero

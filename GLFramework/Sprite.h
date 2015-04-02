@@ -92,6 +92,7 @@ public:
 	void stopAnimation();
 	void setupCollision(glm::vec2 boundingRectSize = glm::vec2(), glm::vec3 boundingRectPositionOffset = glm::vec3());
 	bool isCollidingWith(Sprite* sprite);
+	bool isInRangeOf(Sprite* sprite, float distance) const;
 
 	// === Accessors ===
 
@@ -108,6 +109,7 @@ public:
 	glm::vec4 getBoundingRect() const;
 	bool getHasAnimation() const;
 	bool getVisibie() const;
+	bool getIsFlippedX() const;
 	
 	void setName(std::string name);
 	void setTexID(GLuint texid);
