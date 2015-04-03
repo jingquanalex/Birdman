@@ -30,6 +30,24 @@ void Scene::load()
 	guy->setupMapCollision(tilemap);
 
 	npc = new NPC(vec3(), NPCTYPE::RED);
+	coin = new Sprite("media\\img\\coin.png", vec3(), vec2(32, 32));
+
+	// Populate map with coins and npcs
+	for (Item item : tilemap->getListItems())
+	{
+		if (item.type == -2)
+		{
+			Sprite* newCoin = new Sprite(coin, item.position);
+			newCoin->setupAnimation(vec2(32, 32), 0.1f);
+			newCoin->startAnimation();
+			listCoins.push_back(newCoin);
+		}
+		else if (item.type == -3)
+		{
+			NPC* newNpc = new NPC(npc, item.position);
+			newNpc->setupMapCollision(tilemap);
+		}
+	}
 
 	camera->setPosition(guy->getPosition());
 
@@ -72,6 +90,25 @@ void Scene::update(float dt)
 			}
 		}
 	}
+
+	// Update coin list, if collected, set visible to 0.
+	for_each(listCoins.begin(), listCoins.end(), [=](Sprite*& coin) {
+		if (!coin->getVisibie())
+		{
+			delete coin;
+			coin = NULL;
+		}
+		else
+		{
+			if (guy->isCollidingWith(coin))
+			{
+				coin->setVisible(0);
+			}
+
+			coin->update(dt);
+		}
+	});
+	listCoins.erase(remove(listCoins.begin(), listCoins.end(), static_cast<Sprite*>(NULL)), listCoins.end());
 }
 
 void Scene::draw()
@@ -93,8 +130,8 @@ void Scene::mouse(int button, int state)
 
 	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		NPC* nnpc = new NPC(npc, cursor->getPosition());
-		nnpc->setupMapCollision(tilemap);
+		NPC* newNpc = new NPC(npc, cursor->getPosition());
+		newNpc->setupMapCollision(tilemap);
 	}
 }
 
@@ -103,6 +140,11 @@ void Scene::keyboard(unsigned char key)
 	if (!stateLoaded) return;
 
 	guy->keyboard(key);
+
+	if (key == 'g')
+	{
+		
+	}
 }
 
 void Scene::keyboardUp(unsigned char key)

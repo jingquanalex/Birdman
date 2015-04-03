@@ -40,7 +40,7 @@ void Tilemap::loadMap(string mapData)
 	setupAnimation(tileSize, 0.0f);
 
 	vector<int> rowMapValues;
-	int posx = 0, posy = 0, count = 0;
+	int posx = 0, posy = 0, quadCounter = 0;
 	string buffer;
 	while (getline(file, buffer, ','))
 	{
@@ -60,15 +60,23 @@ void Tilemap::loadMap(string mapData)
 		}
 
 		// If no value is provided, insert -1 by default. Remove all spaces.
+		// Only create maptile if buffer value is specified.
 		int value = -1;
 		buffer.erase(remove_if(buffer.begin(), buffer.end(), isspace), buffer.end());
-		if (buffer != "") value = stoi(buffer);
-
-		// Only create quad if value is specified.
-		if (value != -1)
+		if (buffer != "")
 		{
-			addQuadData(posx, posy, value);
-			count++;
+			value = stoi(buffer);
+
+			if (value >= 0)
+			{
+				addQuadData(posx, posy, value);
+				quadCounter++;
+			}
+			else if (value <= -2)
+			{
+				// An item so add it to item list.
+				addItemData(posx, posy, value);
+			}
 		}
 
 		posx++;
@@ -80,7 +88,7 @@ void Tilemap::loadMap(string mapData)
 	// Assign quad array data.
 	quadVert = &vertices[0];
 	quadCoord = &texcoords[0];
-	quadCount = count * 4;
+	quadCount = quadCounter * 4;
 }
 
 // Value specifies the index of the frame of the tilemap, and its position in the 
@@ -99,6 +107,12 @@ void Tilemap::addQuadData(int posx, int posy, int value)
 	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x) + padding.x); texcoords.push_back(1 - animFramesDelta.y * glm::floor(value / animFramesCount.x) - padding.y);
 	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x + 1) - padding.x); texcoords.push_back(1 - animFramesDelta.y * glm::floor(value / animFramesCount.x) - padding.y);
 	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x + 1) - padding.x); texcoords.push_back(1 - animFramesDelta.y * (glm::floor(value / animFramesCount.x) + 1) + padding.y);
+}
+
+void Tilemap::addItemData(int posx, int posy, int value)
+{
+	Item item = { vec3(posx * mapTileSize.x + mapTileSize.x / 2, posy * -mapTileSize.y - mapTileSize.y / 2, 0), value };
+	listItems.push_back(item);
 }
 
 void Tilemap::update(float dt)
@@ -120,7 +134,7 @@ glm::vec2 Tilemap::getCoordAtPos(vec3 position) const
 	return vec2(-1, -1);
 }
 
-// Return value of -2 is undefined.
+// Return value of -1 is undefined.
 int Tilemap::getValueAtCoord(int x, int y) const
 {
 	if (y >= 0 && y < mapValues.size() && x >= 0 && x < mapValues[y].size())
@@ -129,7 +143,7 @@ int Tilemap::getValueAtCoord(int x, int y) const
 	}
 	else
 	{
-		return -2;
+		return -1;
 	}
 }
 
@@ -153,7 +167,17 @@ vec3 Tilemap::getPositionAtCoord(vec2 coord) const
 	return getPositionAtCoord((int)coord.x, (int)coord.y);
 }
 
-glm::vec2 Tilemap::getMapTileSize() const
+vec2 Tilemap::getMapTileSize() const
 {
 	return mapTileSize;
+}
+
+const vector<vector<int>>& Tilemap::getMapValues() const
+{
+	return mapValues;
+}
+
+const vector<Item>& Tilemap::getListItems() const
+{
+	return listItems;
 }

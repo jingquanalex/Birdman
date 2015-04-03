@@ -34,7 +34,7 @@ void Character::update(float dt)
 		vec2 coordB = tilemap->getCoordAtPos(vec3(nextPosition.x, position.y, 0) + vec3(-boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
 		int valueT = tilemap->getValueAtCoord(coordT);
 		int valueB = tilemap->getValueAtCoord(coordB);
-		if (valueT != -1 || valueB != -1)
+		if (valueT >= 0 || valueB >= 0)
 		{
 			// If colliding on the left side, set 0 velocity and position right next to the wall.
 			collidingX = -1;
@@ -52,7 +52,7 @@ void Character::update(float dt)
 		coordB = tilemap->getCoordAtPos(vec3(nextPosition.x, position.y, 0) + vec3(boundingRectSize.x / 2, -boundingRectSize.y / 2 + 5, 0) + boundingRectPositionOffset);
 		valueT = tilemap->getValueAtCoord(coordT);
 		valueB = tilemap->getValueAtCoord(coordB);
-		if (valueT != -1 || valueB != -1)
+		if (valueT >= 0 || valueB >= 0)
 		{
 			collidingX = 1;
 			if (velocity.x > 0.0f) velocity.x = 0.0f;
@@ -76,7 +76,7 @@ void Character::update(float dt)
 		vec2 coordR = tilemap->getCoordAtPos(vec3(position.x, nextPosition.y, 0) + vec3(boundingRectSize.x / 2 - 5, boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
 		int valueL = tilemap->getValueAtCoord(coordL);
 		int valueR = tilemap->getValueAtCoord(coordR);
-		if (valueL != -1 || valueR != -1)
+		if (valueL >= 0 || valueR >= 0)
 		{
 			velocity.y = -velocity.y;
 			position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 + boundingRectPositionOffset.y;
@@ -88,7 +88,7 @@ void Character::update(float dt)
 		coordR = tilemap->getCoordAtPos(vec3(position.x, nextPosition.y, 0) + vec3(boundingRectSize.x / 2 - 5, -boundingRectSize.y / 2, 0) + boundingRectPositionOffset);
 		valueL = tilemap->getValueAtCoord(coordL);
 		valueR = tilemap->getValueAtCoord(coordR);
-		if ((valueL != -1 || valueR != -1) && velocity.y <= 0.0f)
+		if ((valueL >= 0 || valueR >= 0) && velocity.y <= 0.0f)
 		{
 			isOnPlatform = 1;
 			velocity.y = 0;

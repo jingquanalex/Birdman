@@ -5,6 +5,12 @@
 #include <iostream>
 #include <fstream>
 
+struct Item
+{
+	glm::vec3 position;
+	int type;
+};
+
 class Tilemap : public Sprite
 {
 
@@ -15,10 +21,12 @@ private:
 	std::vector<float> vertices;
 	std::vector<float> texcoords;
 	std::vector<std::vector<int>> mapValues;
+	std::vector<Item> listItems;
 
 	// === Private Functions ===
 
 	void addQuadData(int posx, int posy, int value);
+	void addItemData(int posx, int posy, int value);
 
 public:
 
@@ -42,5 +50,7 @@ public:
 
 	// === Accessors ===
 
+	const std::vector<std::vector<int>>& getMapValues() const;
+	const std::vector<Item>& getListItems() const;
 
 };

@@ -22,6 +22,8 @@ private:
 	Tilemap* tilemap;
 	Guy* guy;
 	NPC* npc;
+	Sprite* coin;
+	std::vector<Sprite*> listCoins;
 
 public:
 
