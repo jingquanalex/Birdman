@@ -8,6 +8,11 @@ using namespace std;
 vector<Sprite*> Sprite::listSprites;
 float Sprite::g_zOrder = -1.0f;
 
+void Sprite::resetZOrder()
+{
+	g_zOrder = -1.0f;
+}
+
 void Sprite::sortToZOrder()
 {
 	sort(listSprites.begin(), listSprites.end(), [](Sprite* sprite1, Sprite* sprite2) {
@@ -29,7 +34,7 @@ Sprite::Sprite()
 }
 
 // Make a copy of a sprite at a specified location.
-Sprite::Sprite(Sprite* sprite, vec3 position)
+Sprite::Sprite(Sprite* sprite, vec3 position, bool excludeDrawList)
 {
 	this->texid = sprite->getTexID();
 	this->position = position;
@@ -37,19 +42,19 @@ Sprite::Sprite(Sprite* sprite, vec3 position)
 	this->size = sprite->getSize();
 
 	setupCollision();
-	load();
+	load(excludeDrawList);
 }
 
 // Initialize a sprite with texture path, position and size, wrap bounding rectangle around its size and load the texture.
 // Size is the dimension of the sprite, if not provided, the dimensions of the texture will be used.
-Sprite::Sprite(string texPath, vec3 position, vec2 size)
+Sprite::Sprite(string texPath, vec3 position, vec2 size, bool excludeDrawList)
 {
 	this->texPath = texPath;
 	this->position = position;
 	this->size = size;
 
 	setupCollision();
-	load();
+	load(excludeDrawList);
 }
 
 Sprite::~Sprite()
@@ -60,10 +65,13 @@ Sprite::~Sprite()
 	if (animTimer) animTimer->destroy();
 }
 
-bool Sprite::load()
+bool Sprite::load(bool excludeDrawList)
 {
 	// Add sprite to draw list
-	listSprites.push_back(this);
+	if (!excludeDrawList)
+	{
+		listSprites.push_back(this);
+	}
 
 	// If no zOrder is provided, assign it automatically.
 	if (zOrder == 0.0f)

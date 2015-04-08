@@ -119,23 +119,21 @@ void Character::update(float dt)
 		velocity.y = jumpSpeed;
 	}
 
-	// Knocked back states
-	if (stateKnockedBack == 2 && isOnPlatform)
+	// Knocked back states 1 - knock left, 2 - knock right
+	if (stateKnockedBack == 3 && isOnPlatform)
 	{
 		stateKnockedBack = 0;
 	}
 
 	if (stateKnockedBack == 1)
 	{
-		if (isFlippedX)
-		{
-			velocity = vec3(400, 400, 0);
-		}
-		else
-		{
-			velocity = vec3(-400, 400, 0);
-		}
-		stateKnockedBack = 2;
+		velocity = vec3(-400, 400, 0);
+		stateKnockedBack = 3;
+	}
+	else if (stateKnockedBack == 2)
+	{
+		velocity = vec3(400, 400, 0);
+		stateKnockedBack = 3;
 	}
 
 	oldPosition = position;
@@ -147,6 +145,23 @@ void Character::update(float dt)
 void Character::setupMapCollision(Tilemap* tilemap)
 {
 	this->tilemap = tilemap;
+}
+
+// 1 - left, 2 - right
+void Character::knockback(int direction)
+{
+	if (stateKnockedBack == 0)
+	{
+		stateKnockedBack = direction;
+	}
+}
+
+void Character::jump()
+{
+	if (stateJumping == 0 && isOnPlatform)
+	{
+		stateJumping = 1;
+	}
 }
 
 float Character::getMoveSpeed() const

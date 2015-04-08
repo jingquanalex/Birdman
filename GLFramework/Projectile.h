@@ -12,10 +12,11 @@ private:
 public:
 
 	static void updateProjectiles(float dt);
+	static const std::vector<Projectile*>& getListProjectiles();
 
 private:
 
-
+	Timer* durationTimer;
 
 public:
 

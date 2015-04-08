@@ -6,6 +6,12 @@ using namespace std;
 extern int window_width;
 extern int window_height;
 
+FTGLPixmapFont fontCredit1 = FTGLPixmapFont("media\\pixel.ttf");
+FTGLPixmapFont fontCredit2 = FTGLPixmapFont("media\\pixel.ttf");
+FTGLPixmapFont fontStartGame = FTGLPixmapFont("media\\pixel.ttf");
+FTGLPixmapFont fontCoin = FTGLPixmapFont("media\\pixel.ttf");
+FTGLPixmapFont fontNpc = FTGLPixmapFont("media\\pixel.ttf");
+
 Scene::Scene(Camera* camera, Cursor* cursor)
 {
 	this->camera = camera;
@@ -20,17 +26,45 @@ Scene::~Scene()
 void Scene::load()
 {
 	background = new Sprite("media\\img\\bg_brown.jpg", vec3(), vec2(window_width, window_height));
-	background->setZOrder(-90.0f);
+	background->setZOrder(-900.0f);
 	background->attachTo(camera);
 
 	tilemap = new Tilemap("media\\img\\tileset.png", vec2(32, 32), "media\\map1.txt", vec2(64, 64));
-	tilemap->setZOrder(-89.0f);
+	tilemap->setZOrder(-890.0f);
 
-	guy = new Guy(vec3(440, -2155, 0));
+	guy = new Guy(guyStartPosition);
 	guy->setupMapCollision(tilemap);
 
 	npc = new NPC(vec3(), NPCTYPE::RED);
 	coin = new Sprite("media\\img\\coin.png", vec3(), vec2(32, 32));
+
+	fontCredit1.FaceSize(99);
+	fontCredit2.FaceSize(49);
+	fontStartGame.FaceSize(100);
+
+	resetScene();
+
+	stateLoaded = 1;
+}
+
+void Scene::resetScene()
+{
+	guy->resetScores();
+
+	// Reset sprite initial auto zOrder
+	Sprite::resetZOrder();
+
+	// Mark coins for deletion
+	for (Sprite* coin : listCoins)
+	{
+		coin->setVisible(0);
+	}
+
+	// Mark npc for deletion
+	for (NPC* npc : NPC::getListNPCs())
+	{
+		npc->destroy();
+	}
 
 	// Populate map with coins and npcs
 	for (Item item : tilemap->getListItems())
@@ -49,9 +83,8 @@ void Scene::load()
 		}
 	}
 
-	camera->setPosition(guy->getPosition());
-
-	stateLoaded = 1;
+	guy->setPosition(guyStartPosition);
+	camera->setPosition(camStartPosition);
 }
 
 void Scene::update(float dt)
@@ -65,11 +98,16 @@ void Scene::update(float dt)
 		stateLoaded = 2;
 	}
 
+	background->setSize(vec2(window_width, window_height));
 	background->update(dt);
-	guy->update(dt);
-	NPC::updateNPCs(dt);
 
-	camera->moveTo(guy->getPosition() + vec3(0, 50, 0));
+	if (stateLoaded > 2)
+	{
+		guy->update(dt);
+		camera->moveTo(guy->getPosition() + vec3(0, 50, 0));
+	}
+
+	NPC::updateNPCs(dt);
 
 	// Character collision logics
 	for (NPC* npc : NPC::getListNPCs())
@@ -83,10 +121,27 @@ void Scene::update(float dt)
 			{
 				npc->stomped();
 				guy->bounce();
+				guy->killedNpc();
 			}
 			else
 			{
 				guy->damageTaken();
+			}
+		}
+
+		for (Projectile* projectile : Projectile::getListProjectiles())
+		{
+			if (npc->getIsThreat() && projectile->isCollidingWith(npc))
+			{
+				if (projectile->getIsFlippedX())
+				{
+					npc->knockback(1);
+				}
+				else
+				{
+					npc->knockback(2);
+				}
+				projectile->destroy();
 			}
 		}
 	}
@@ -103,6 +158,7 @@ void Scene::update(float dt)
 			if (guy->isCollidingWith(coin))
 			{
 				coin->setVisible(0);
+				guy->collectCoin();
 			}
 
 			coin->update(dt);
@@ -114,6 +170,15 @@ void Scene::update(float dt)
 void Scene::draw()
 {
 	if (!stateLoaded) return;
+
+	Sprite::drawSprites();
+
+	glPushMatrix();
+	fontCredit1.Render("BirdMan");
+	fontCredit2.Render("by Alex Zhang", -1, FTPoint(400, 0, 0));
+	glColor4d(1.0, 0.0, 0.0, 1.0);
+	fontStartGame.Render("START", -1, FTPoint(window_width / 2 - 100, window_height / 2 + 150, 0));
+	glPopMatrix();
 }
 
 void Scene::mouse(int button, int state)
@@ -141,9 +206,9 @@ void Scene::keyboard(unsigned char key)
 
 	guy->keyboard(key);
 
-	if (key == 'g')
+	if (key == 'r')
 	{
-		
+		resetScene();
 	}
 }
 

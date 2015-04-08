@@ -69,7 +69,7 @@ void Guy::update(float dt)
 		if (currentFrame == 28)
 		{
 			statePunching = 0;
-			moveSpeed = oldMoveSpeed;
+			//moveSpeed = oldMoveSpeed;
 		}
 	}
 	else if (stateKicking)
@@ -117,18 +117,10 @@ void Guy::damageTaken()
 {
 	if (!isInvuln)
 	{
-		stateKnockedBack = 1;
+		knockback((int)isFlippedX + 1);
 		isInvuln = 1;
 		tHurtFlash->reset();
 		tHurtFlash->start();
-	}
-}
-
-void Guy::jump()
-{
-	if (stateJumping == 0 && isOnPlatform)
-	{
-		stateJumping = 1;
 	}
 }
 
@@ -146,8 +138,8 @@ void Guy::punch()
 		statePunching = 1;
 		setFrameRange(24, 28);
 		setFrameInterval(0.1f);
-		oldMoveSpeed = moveSpeed;
-		moveSpeed /= 4;
+		//oldMoveSpeed = moveSpeed;
+		//moveSpeed /= 4;
 
 		// Create projectile
 		new Projectile(projectile, tilemap, position, isFlippedX);
@@ -167,6 +159,23 @@ void Guy::kick()
 		moveSpeed *= 2;
 		bounce();
 	}
+}
+
+void Guy::collectCoin()
+{
+	coinsCollected++;
+}
+
+void Guy::killedNpc()
+{
+	npcsKilled++;
+}
+
+void Guy::resetScores()
+{
+	score = 0;
+	coinsCollected = 0;
+	npcsKilled = 0;
 }
 
 void Guy::keyboardSpecial(int key)

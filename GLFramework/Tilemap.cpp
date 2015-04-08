@@ -9,6 +9,7 @@ using namespace glm;
 // mapTileSize - Size of the tiles in game.
 Tilemap::Tilemap(string tileTexture, vec2 tileSize, string mapData, vec2 mapTileSize) : Sprite()
 {
+	endBounds = vec2();
 	this->size = vec2(1, 1);
 	this->texPath = tileTexture;
 	this->tileSize = tileSize;
@@ -71,6 +72,10 @@ void Tilemap::loadMap(string mapData)
 			{
 				addQuadData(posx, posy, value);
 				quadCounter++;
+
+				// Store the end boundary of the map
+				endBounds.x = endBounds.x < posx * mapTileSize.x ? posx * mapTileSize.x : endBounds.x;
+				endBounds.y = endBounds.y > posy * -mapTileSize.y ? posy * -mapTileSize.y : endBounds.y;
 			}
 			else if (value <= -2)
 			{
@@ -180,4 +185,9 @@ const vector<vector<int>>& Tilemap::getMapValues() const
 const vector<Item>& Tilemap::getListItems() const
 {
 	return listItems;
+}
+
+vec2 Tilemap::getEndBounds() const
+{
+	return endBounds;
 }

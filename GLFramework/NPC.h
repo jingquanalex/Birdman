@@ -21,7 +21,7 @@ private:
 
 public:
 
-	static std::vector<NPC*> getListNPCs();
+	static std::vector<NPC*>& getListNPCs();
 	static void updateNPCs(float dt);
 
 private:
@@ -42,6 +42,8 @@ public:
 
 	void update(float dt);
 	void stomped();
+	void struck();
+	void destroy();
 
 	// === Accessors ===
 

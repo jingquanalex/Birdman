@@ -5,7 +5,7 @@ using namespace glm;
 
 vector<NPC*> NPC::listNPCs;
 
-vector<NPC*> NPC::getListNPCs()
+vector<NPC*>& NPC::getListNPCs()
 {
 	return listNPCs;
 }
@@ -76,7 +76,7 @@ NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", positi
 	stompTimer = new Timer(0.0f, 1.0f);
 	fadeTimer = new Timer(0.1f, 0.0f);
 
-	listNPCs.push_back(this);
+	//listNPCs.push_back(this);
 }
 
 NPC::~NPC()
@@ -137,6 +137,11 @@ void NPC::stomped()
 		state = NPCSTATE::STOMPED;
 		stompTimer->start();
 	}
+}
+
+void NPC::destroy()
+{
+	isDead = 1;
 }
 
 NPCSTATE NPC::getState() const

@@ -37,6 +37,8 @@ public:
 	void update(float dt);
 
 	void setupMapCollision(Tilemap* tilemap);
+	void knockback(int direction);
+	void jump();
 
 	// === Accessors ===
 

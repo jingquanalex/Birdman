@@ -22,6 +22,7 @@ private:
 	std::vector<float> texcoords;
 	std::vector<std::vector<int>> mapValues;
 	std::vector<Item> listItems;
+	glm::vec2 endBounds;
 
 	// === Private Functions ===
 
@@ -47,6 +48,7 @@ public:
 	glm::vec3 getPositionAtCoord(int x, int y) const;
 	glm::vec3 getPositionAtCoord(glm::vec2 coord) const;
 	glm::vec2 getMapTileSize() const;
+	glm::vec2 getEndBounds() const;
 
 	// === Accessors ===
 

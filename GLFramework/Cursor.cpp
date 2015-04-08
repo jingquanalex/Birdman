@@ -3,7 +3,7 @@
 using namespace glm;
 using namespace std;
 
-Cursor::Cursor(string imgPath, vec2 size) : Sprite(imgPath, globalPosition, size)
+Cursor::Cursor(string imgPath, vec2 size) : Sprite(imgPath, globalPosition, size, true)
 {
 	glutSetCursor(GLUT_CURSOR_NONE);
 	Sprite::setZOrder(1.0f);

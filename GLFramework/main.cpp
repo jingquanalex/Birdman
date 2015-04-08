@@ -10,7 +10,6 @@ void init()
 	scene = new Scene(camera, cursor);
 	fpsTimer = new Timer(1.0f);
 	fpsTimer->start();
-
 	scene->load();
 }
 
@@ -50,8 +49,9 @@ void display()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(value_ptr(camera->getMatView()));
 
-	Sprite::drawSprites();
-
+	scene->draw();
+	cursor->draw();
+	
 	glutSwapBuffers();
 	glFinish();
 }
@@ -61,6 +61,8 @@ void reshape(int width, int height)
 {
 	glViewport(0, 0, width, height);
 	camera->setResolution(width, height);
+	window_width = width;
+	window_height = height;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(value_ptr(camera->getMatProjection()));

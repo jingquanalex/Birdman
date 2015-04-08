@@ -25,6 +25,7 @@ private:
 
 public:
 
+	static void resetZOrder();
 	static void sortToZOrder();
 	static void drawSprites();
 
@@ -74,13 +75,13 @@ protected:
 public:
 
 	Sprite();
-	Sprite(Sprite* sprite, glm::vec3 position);
-	Sprite(std::string texPath, glm::vec3 position, glm::vec2 size = glm::vec2());
+	Sprite(Sprite* sprite, glm::vec3 position, bool excludeDrawList = false);
+	Sprite(std::string texPath, glm::vec3 position, glm::vec2 size = glm::vec2(), bool excludeDrawList = false);
 	~Sprite();
 
 	// === Functions ===
 
-	bool load();
+	bool load(bool excludeDrawList = false);
 	virtual void update(float dt);
 	virtual void draw();
 

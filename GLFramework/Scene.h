@@ -1,5 +1,6 @@
 #pragma once
 
+#include <FTGL/ftgl.h>
 #include "Timer.h"
 #include "Camera.h"
 #include "Cursor.h"
@@ -24,6 +25,8 @@ private:
 	NPC* npc;
 	Sprite* coin;
 	std::vector<Sprite*> listCoins;
+	glm::vec3 guyStartPosition = glm::vec3(546, -1856, 0);
+	glm::vec3 camStartPosition = glm::vec3(565, -2100, 0);
 
 public:
 
@@ -35,6 +38,8 @@ public:
 	void load();
 	void update(float dt);
 	void draw();
+
+	void resetScene();
 
 	// === Callbacks ===
 

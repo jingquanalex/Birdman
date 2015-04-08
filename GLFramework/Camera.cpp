@@ -108,7 +108,7 @@ void Camera::update(float dt)
 void Camera::updateProjectionMatrix()
 {
 	// For now, design game scenes at 1280x800, and map clipping to window resolution.
-	matProjection = glm::ortho(-resolution.x / 2, resolution.x / 2, -resolution.y / 2, resolution.y / 2, 1.0f, 100.0f);
+	matProjection = glm::ortho(-resolution.x / 2, resolution.x / 2, -resolution.y / 2, resolution.y / 2, 1.0f, 1000.0f);
 
 	//matProjection = glm::ortho(-g_content_width , g_content_width , -g_content_height, g_content_height);
 

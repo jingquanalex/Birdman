@@ -14,10 +14,12 @@ private:
 	Timer* tHurtFlash;
 
 	bool jumpPressed = 0, punchPressed = 0, kickPressed = 0;
-	int score = 0;
 	float oldMoveSpeed;
 	int statePunching = 0, stateKicking = 0;
 	int kickCharges = 1;
+
+	int score = 0;
+	int coinsCollected = 0, npcsKilled = 0;
 
 public:
 
@@ -28,11 +30,13 @@ public:
 
 	void update(float dt);
 
-	void jump();
 	void bounce();
 	void damageTaken();
 	void punch();
 	void kick();
+	void collectCoin();
+	void killedNpc();
+	void resetScores();
 
 	// === Callbacks ===
 
