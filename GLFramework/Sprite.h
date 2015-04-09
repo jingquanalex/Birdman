@@ -111,6 +111,8 @@ public:
 	bool getHasAnimation() const;
 	bool getVisibie() const;
 	bool getIsFlippedX() const;
+	float getAlpha() const;
+	glm::vec3 getColor() const;
 	
 	void setName(std::string name);
 	void setTexID(GLuint texid);
@@ -124,6 +126,7 @@ public:
 	void setBoundingRectVisible(bool isVisible);
 	void setColor(glm::vec3 color);
 	void setColorBorder(glm::vec3 color);
+	void setAlpha(float alpha);
 	void setVisible(bool isVisible);
 	void attachTo(Sprite* sprite);
 	void attachTo(Camera* camera);

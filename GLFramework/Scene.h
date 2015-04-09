@@ -16,17 +16,24 @@ class Scene
 
 private:
 
+	bool devMode = 0;
 	int stateLoaded = 0;
+	int gameState = 1;
+	int gameWon = 0;
 	Camera* camera;
 	Cursor* cursor;
 	Sprite* background;
 	Tilemap* tilemap;
 	Guy* guy;
 	NPC* npc;
+	NPC* npcBlue;
 	Sprite* coin;
 	std::vector<Sprite*> listCoins;
-	glm::vec3 guyStartPosition = glm::vec3(546, -1856, 0);
+	glm::vec3 guyStartPosition = glm::vec3(545, -1859, 0);
 	glm::vec3 camStartPosition = glm::vec3(565, -2100, 0);
+	int spawnNpcNext = 0;
+	Sprite* blanket;
+	Timer* fadeTimer;
 
 public:
 
@@ -40,6 +47,7 @@ public:
 	void draw();
 
 	void resetScene();
+	void gameOver();
 
 	// === Callbacks ===
 

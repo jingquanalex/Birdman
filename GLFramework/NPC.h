@@ -44,6 +44,7 @@ public:
 	void stomped();
 	void struck();
 	void destroy();
+	void setIdle(bool idle);
 
 	// === Accessors ===
 

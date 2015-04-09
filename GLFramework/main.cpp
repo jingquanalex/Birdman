@@ -7,6 +7,7 @@ void init()
 {
 	camera = new Camera(window_width, window_height);
 	cursor = new Cursor();
+	cursor->setVisible(0);
 	scene = new Scene(camera, cursor);
 	fpsTimer = new Timer(1.0f);
 	fpsTimer->start();

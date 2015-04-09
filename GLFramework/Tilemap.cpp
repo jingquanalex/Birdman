@@ -60,27 +60,28 @@ void Tilemap::loadMap(string mapData)
 			rowMapValues.clear();
 		}
 
-		// If no value is provided, insert -1 by default. Remove all spaces.
-		// Only create maptile if buffer value is specified.
-		int value = -1;
+		// If value is a positive number, set tile's value for collision.
+		// If negative, set tile's value with no collision.
+		// If not a number, check buffer and store the value in items list.
+		int value = 0;
 		buffer.erase(remove_if(buffer.begin(), buffer.end(), isspace), buffer.end());
 		if (buffer != "")
 		{
-			value = stoi(buffer);
-
-			if (value >= 0)
+			// An item so add it to item list.
+			if (buffer == "c" || buffer == "r" || buffer == "ir" || buffer == "b" || buffer == "ib")
 			{
+				addItemData(posx, posy, buffer);
+			}
+			else
+			{
+				value = stoi(buffer);
+
 				addQuadData(posx, posy, value);
 				quadCounter++;
 
 				// Store the end boundary of the map
 				endBounds.x = endBounds.x < posx * mapTileSize.x ? posx * mapTileSize.x : endBounds.x;
 				endBounds.y = endBounds.y > posy * -mapTileSize.y ? posy * -mapTileSize.y : endBounds.y;
-			}
-			else if (value <= -2)
-			{
-				// An item so add it to item list.
-				addItemData(posx, posy, value);
 			}
 		}
 
@@ -108,13 +109,13 @@ void Tilemap::addQuadData(int posx, int posy, int value)
 
 	// Texcoord for this quad based on frame index (value). Padding is to remove the lines at the edge of sprite frame.
 	vec2 padding = vec2(1 / texSize.x, 1 / texSize.y);
-	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x) + padding.x); texcoords.push_back(1 - animFramesDelta.y * (glm::floor(value / animFramesCount.x) + 1) + padding.y);
-	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x) + padding.x); texcoords.push_back(1 - animFramesDelta.y * glm::floor(value / animFramesCount.x) - padding.y);
-	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x + 1) - padding.x); texcoords.push_back(1 - animFramesDelta.y * glm::floor(value / animFramesCount.x) - padding.y);
-	texcoords.push_back(animFramesDelta.x * (value % (int)animFramesCount.x + 1) - padding.x); texcoords.push_back(1 - animFramesDelta.y * (glm::floor(value / animFramesCount.x) + 1) + padding.y);
+	texcoords.push_back(animFramesDelta.x * (abs(value) % (int)animFramesCount.x) + padding.x); texcoords.push_back(1 - animFramesDelta.y * (glm::floor(abs(value) / animFramesCount.x) + 1) + padding.y);
+	texcoords.push_back(animFramesDelta.x * (abs(value) % (int)animFramesCount.x) + padding.x); texcoords.push_back(1 - animFramesDelta.y * glm::floor(abs(value) / animFramesCount.x) - padding.y);
+	texcoords.push_back(animFramesDelta.x * (abs(value) % (int)animFramesCount.x + 1) - padding.x); texcoords.push_back(1 - animFramesDelta.y * glm::floor(abs(value) / animFramesCount.x) - padding.y);
+	texcoords.push_back(animFramesDelta.x * (abs(value) % (int)animFramesCount.x + 1) - padding.x); texcoords.push_back(1 - animFramesDelta.y * (glm::floor(abs(value) / animFramesCount.x) + 1) + padding.y);
 }
 
-void Tilemap::addItemData(int posx, int posy, int value)
+void Tilemap::addItemData(int posx, int posy, string value)
 {
 	Item item = { vec3(posx * mapTileSize.x + mapTileSize.x / 2, posy * -mapTileSize.y - mapTileSize.y / 2, 0), value };
 	listItems.push_back(item);

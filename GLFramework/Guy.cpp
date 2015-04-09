@@ -9,6 +9,7 @@ Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 6
 	tHurtFlash = new Timer(0.07f, 1.5f);
 	projectile = new Projectile();
 
+	isOnPlatform = 1;
 	jumpSpeed = 1000.0f;
 	moveSpeed = 550.0f;
 	setupAnimation(vec2(64, 64), 0.1f, 0, 2);
@@ -117,6 +118,8 @@ void Guy::damageTaken()
 {
 	if (!isInvuln)
 	{
+		color.g -= 0.25f;
+		color.b -= 0.25f;
 		knockback((int)isFlippedX + 1);
 		isInvuln = 1;
 		tHurtFlash->reset();
@@ -171,15 +174,43 @@ void Guy::killedNpc()
 	npcsKilled++;
 }
 
-void Guy::resetScores()
+void Guy::reset()
 {
+	color = vec3(1, 1, 1);
 	score = 0;
 	coinsCollected = 0;
 	npcsKilled = 0;
+
+	jumpPressed = punchPressed = kickPressed = 0;
+	statePunching = stateKicking = 0;
+	kickCharges = 1;
+
+	collidingX = collidingY = 0;
+	stateKnockedBack = stateJumping = 0;
+
+	alpha = 1.0f;
+	isOnPlatform = 1;
+	velocity = vec3();
+	isMovingLeft = 0;
+	isMovingRight = 0;
+	isInvuln = 0;
+	isIdle = 0;
+	jumpSpeed = 1000.0f;
+	moveSpeed = 550.0f;
+	frozen = 0;
+
+	setFrameRange(0, 0);
+}
+
+void Guy::freeze()
+{
+	frozen = 1;
 }
 
 void Guy::keyboardSpecial(int key)
 {
+	if (frozen) return;
+
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
@@ -206,6 +237,8 @@ void Guy::keyboardSpecialUp(int key)
 
 void Guy::keyboard(unsigned char key)
 {
+	if (frozen) return;
+
 	switch (key)
 	{
 	case KEY_SPACE:
@@ -238,4 +271,14 @@ void Guy::keyboardUp(unsigned char key)
 		kickPressed = 0;
 		break;
 	}
+}
+
+int Guy::getCoinsCollected()
+{
+	return coinsCollected;
+}
+
+int Guy::getNpcsKilled()
+{
+	return npcsKilled;
 }

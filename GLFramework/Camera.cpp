@@ -177,6 +177,8 @@ void Camera::keyboardSpecialUp(int key)
 void Camera::setPosition(glm::vec3 position)
 {
 	this->position = vec3(position.x, position.y, z);
+	velocity = vec3();
+	isMovingToDest = false;
 }
 
 mat4 Camera::getMatViewProjection() const

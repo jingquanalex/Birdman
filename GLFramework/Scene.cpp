@@ -9,8 +9,7 @@ extern int window_height;
 FTGLPixmapFont fontCredit1 = FTGLPixmapFont("media\\pixel.ttf");
 FTGLPixmapFont fontCredit2 = FTGLPixmapFont("media\\pixel.ttf");
 FTGLPixmapFont fontStartGame = FTGLPixmapFont("media\\pixel.ttf");
-FTGLPixmapFont fontCoin = FTGLPixmapFont("media\\pixel.ttf");
-FTGLPixmapFont fontNpc = FTGLPixmapFont("media\\pixel.ttf");
+FTGLPixmapFont fontStartGame2 = FTGLPixmapFont("media\\pixel.ttf");
 
 Scene::Scene(Camera* camera, Cursor* cursor)
 {
@@ -36,11 +35,19 @@ void Scene::load()
 	guy->setupMapCollision(tilemap);
 
 	npc = new NPC(vec3(), NPCTYPE::RED);
+	npcBlue = new NPC(vec3(), NPCTYPE::BLUE);
 	coin = new Sprite("media\\img\\coin.png", vec3(), vec2(32, 32));
 
-	fontCredit1.FaceSize(99);
-	fontCredit2.FaceSize(49);
+	blanket = new Sprite("", vec3(), vec2(window_width, window_height), true);
+	blanket->attachTo(camera);
+	blanket->setZOrder(0.9f);
+	fadeTimer = new Timer(0.01f);
+	fadeTimer->start();
+
+	fontCredit1.FaceSize(100);
+	fontCredit2.FaceSize(50);
 	fontStartGame.FaceSize(100);
+	fontStartGame2.FaceSize(40);
 
 	resetScene();
 
@@ -49,7 +56,9 @@ void Scene::load()
 
 void Scene::resetScene()
 {
-	guy->resetScores();
+	gameWon = 0;
+	stateLoaded = 1;
+	guy->reset();
 
 	// Reset sprite initial auto zOrder
 	Sprite::resetZOrder();
@@ -69,22 +78,46 @@ void Scene::resetScene()
 	// Populate map with coins and npcs
 	for (Item item : tilemap->getListItems())
 	{
-		if (item.type == -2)
+		if (item.type == "c")
 		{
 			Sprite* newCoin = new Sprite(coin, item.position);
 			newCoin->setupAnimation(vec2(32, 32), 0.1f);
 			newCoin->startAnimation();
 			listCoins.push_back(newCoin);
 		}
-		else if (item.type == -3)
+		else if (item.type == "r")
 		{
 			NPC* newNpc = new NPC(npc, item.position);
 			newNpc->setupMapCollision(tilemap);
+		}
+		else if (item.type == "ir")
+		{
+			NPC* newNpc = new NPC(npc, item.position);
+			newNpc->setIdle(1);
+		}
+		else if (item.type == "b")
+		{
+			NPC* newNpc = new NPC(npcBlue, item.position);
+			newNpc->setupMapCollision(tilemap);
+		}
+		else if (item.type == "ib")
+		{
+			NPC* newNpc = new NPC(npcBlue, item.position);
+			newNpc->setIdle(1);
 		}
 	}
 
 	guy->setPosition(guyStartPosition);
 	camera->setPosition(camStartPosition);
+}
+
+void Scene::gameOver()
+{
+	if (gameState == 2)
+	{
+		gameState = 3;
+		fadeTimer->start();
+	}
 }
 
 void Scene::update(float dt)
@@ -98,13 +131,25 @@ void Scene::update(float dt)
 		stateLoaded = 2;
 	}
 
+	blanket->setSize(vec2(window_width, window_height));
+	blanket->update(dt);
+
 	background->setSize(vec2(window_width, window_height));
 	background->update(dt);
 
 	if (stateLoaded > 2)
 	{
 		guy->update(dt);
-		camera->moveTo(guy->getPosition() + vec3(0, 50, 0));
+
+		if (stateLoaded == 3 && guy->getIsOnPlatform())
+		{
+			stateLoaded = 4;
+		}
+
+		if (stateLoaded == 4)
+		{
+			camera->moveTo(guy->getPosition() + vec3(0, 50, 0));
+		}
 	}
 
 	NPC::updateNPCs(dt);
@@ -112,16 +157,30 @@ void Scene::update(float dt)
 	// Character collision logics
 	for (NPC* npc : NPC::getListNPCs())
 	{
-		if (!guy->getIsInvuln() && npc->getIsThreat() && guy->isCollidingWith(npc) && npc->getType() == NPCTYPE::RED)
+		// If npc fall off map, destroy
+		if (npc->getPosition().y < tilemap->getEndBounds().y)
 		{
-			// Guy can only kill the npc if he is falling on top of it.
-			float guyPosY = guy->getPosition().y + guy->getBoundingRect().y;
-			float npcPosY = npc->getPosition().y;
-			if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY && guy->getVelocity().y <= 0.0f)
+			npc->destroy();
+		}
+
+		if (!guy->getIsInvuln() && npc->getIsThreat() && guy->isCollidingWith(npc))
+		{
+			if (npc->getType() == NPCTYPE::RED)
 			{
-				npc->stomped();
-				guy->bounce();
-				guy->killedNpc();
+				// Guy can only kill the npc if he is falling on top of it.
+				float guyPosY = guy->getPosition().y + guy->getBoundingRect().y;
+				float npcPosY = npc->getPosition().y;
+				if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY && guy->getVelocity().y <= 0.0f)
+				{
+					npc->stomped();
+					guy->bounce();
+					guy->killedNpc();
+				}
+				else
+				{
+					guy->damageTaken();
+					spawnNpcNext++;
+				}
 			}
 			else
 			{
@@ -133,6 +192,11 @@ void Scene::update(float dt)
 		{
 			if (npc->getIsThreat() && projectile->isCollidingWith(npc))
 			{
+				if (npc->getState() == NPCSTATE::IDLE)
+				{
+					npc->setHasGravity(1);
+				}
+
 				if (projectile->getIsFlippedX())
 				{
 					npc->knockback(1);
@@ -145,6 +209,14 @@ void Scene::update(float dt)
 			}
 		}
 	}
+
+	// Spawn npc if damage taken
+	for (int i = 0; i < spawnNpcNext; i++)
+	{
+		NPC* newNpc = new NPC(npcBlue, guy->getPosition() + vec3(rand() % 100 - 50, 0, 0));
+		newNpc->setupMapCollision(tilemap);
+	}
+	spawnNpcNext = 0;
 
 	// Update coin list, if collected, set visible to 0.
 	for_each(listCoins.begin(), listCoins.end(), [=](Sprite*& coin) {
@@ -165,6 +237,51 @@ void Scene::update(float dt)
 		}
 	});
 	listCoins.erase(remove(listCoins.begin(), listCoins.end(), static_cast<Sprite*>(NULL)), listCoins.end());
+
+	// Player took 4 hits, reset
+	if (guy->getColor().g < 0.0f)
+	{
+		gameOver();
+	}
+
+	// Player fall off map, reset
+	if (guy->getPosition().y < tilemap->getEndBounds().y)
+	{
+		gameOver();
+	}
+
+	// Player hit objective, display win.
+	if (!gameWon && distance2(guy->getPosition(), vec3(2527, -235, 0)) < 955.0f)
+	{
+		gameWon = 1;
+		guy->freeze();
+	}
+
+	// Fade in/out and reset scene
+	if (gameState == 1)
+	{
+		if (fadeTimer->hasTicked())
+		{
+			blanket->setAlpha(blanket->getAlpha() - 0.01f);
+			if (blanket->getAlpha() <= 0.0f)
+			{
+				gameState = 2;
+				fadeTimer->stop();
+			}
+		}
+	}
+	else if (gameState == 3)
+	{
+		if (fadeTimer->hasTicked())
+		{
+			blanket->setAlpha(blanket->getAlpha() + 0.01f);
+			if (blanket->getAlpha() >= 1.0f)
+			{
+				gameState = 1;
+				resetScene();
+			}
+		}
+	}
 }
 
 void Scene::draw()
@@ -173,17 +290,56 @@ void Scene::draw()
 
 	Sprite::drawSprites();
 
-	glPushMatrix();
-	fontCredit1.Render("BirdMan");
-	fontCredit2.Render("by Alex Zhang", -1, FTPoint(400, 0, 0));
-	glColor4d(1.0, 0.0, 0.0, 1.0);
-	fontStartGame.Render("START", -1, FTPoint(window_width / 2 - 100, window_height / 2 + 150, 0));
-	glPopMatrix();
+	// UI
+	if (stateLoaded != 4)
+	{
+		glPixelTransferf(GL_RED_BIAS, -1.0f);
+		glPixelTransferf(GL_GREEN_BIAS, 1.0f);
+		glPixelTransferf(GL_BLUE_BIAS, 1.0f);
+		fontCredit1.Render("BirdMan");
+		fontCredit2.Render("by Alex Zhang", -1, FTPoint(400, 20, 0));
+		glPixelTransferf(GL_RED_BIAS, -1.0f);
+		glPixelTransferf(GL_GREEN_BIAS, -1.0f);
+		glPixelTransferf(GL_BLUE_BIAS, -1.0f);
+		fontStartGame.Render("START", -1, FTPoint(window_width / 2 - 100, window_height / 2 + 150, 0));
+		fontStartGame2.Render("Press Space To", -1, FTPoint(window_width / 2 - 120, window_height - 100, 0));
+		fontStartGame2.Render("Collect ->", -1, FTPoint(window_width / 2 - 250, window_height / 2 + 10, 0));
+		fontStartGame2.Render("Collect ->", -1, FTPoint(window_width / 2 - 250, window_height / 2 - 60, 0));
+		fontStartGame2.Render("Stomp ->", -1, FTPoint(window_width / 2 - 250, window_height / 2 - 130, 0));
+	}
+	else if (stateLoaded == 4)
+	{
+		glPixelTransferf(GL_RED_BIAS, 1.0f);
+		glPixelTransferf(GL_GREEN_BIAS, -1.0f);
+		glPixelTransferf(GL_BLUE_BIAS, 1.0f);
+		stringstream ss;
+		ss << "Coins Collected: " << guy->getCoinsCollected();
+		fontStartGame2.Render(ss.str().c_str(), -1, FTPoint(100, window_height - 100, 0));
+		ss.str("");
+		ss.clear();
+		ss << "Monster Stomped: " << guy->getNpcsKilled();
+		fontStartGame2.Render(ss.str().c_str(), -1, FTPoint(window_width - 525, window_height - 100, 0));
+
+		if (gameWon)
+		{
+			glPixelTransferf(GL_RED_BIAS, 1.0f);
+			glPixelTransferf(GL_GREEN_BIAS, 1.0f);
+			glPixelTransferf(GL_BLUE_BIAS, -1.0f);
+			fontCredit1.Render("You Win!");
+			ss.str("");
+			ss.clear();
+			ss << "Score: " << guy->getCoinsCollected() + guy->getNpcsKilled();
+			fontCredit2.Render(ss.str().c_str(), -1, FTPoint(600, 20, 0));
+		}
+	}
+
+	blanket->draw();
 }
 
 void Scene::mouse(int button, int state)
 {
 	if (!stateLoaded) return;
+	if (!devMode) return;
 
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
@@ -198,6 +354,12 @@ void Scene::mouse(int button, int state)
 		NPC* newNpc = new NPC(npc, cursor->getPosition());
 		newNpc->setupMapCollision(tilemap);
 	}
+
+	if (button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN)
+	{
+		NPC* newNpc = new NPC(npcBlue, cursor->getPosition());
+		newNpc->setupMapCollision(tilemap);
+	}
 }
 
 void Scene::keyboard(unsigned char key)
@@ -206,9 +368,21 @@ void Scene::keyboard(unsigned char key)
 
 	guy->keyboard(key);
 
-	if (key == 'r')
+	if (key == KEY_SPACE)
 	{
-		resetScene();
+		if (stateLoaded == 2)
+		{
+			stateLoaded = 3;
+		}
+	}
+	else if (key == '1')
+	{
+		gameOver();
+	}
+	else if (key == '0')
+	{
+		devMode = 1;
+		cursor->setVisible(1);
 	}
 }
 
@@ -223,7 +397,10 @@ void Scene::keyboardSpecial(int key)
 {
 	if (!stateLoaded) return;
 
-	guy->keyboardSpecial(key);
+	if (stateLoaded == 4)
+	{
+		guy->keyboardSpecial(key);
+	}
 }
 
 void Scene::keyboardSpecialUp(int key)

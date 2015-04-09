@@ -54,5 +54,6 @@ public:
 	void setJumpHeight(float height);
 	void setVelocity(glm::vec3 velocity);
 	void setHasGravity(bool hasGravity);
+	virtual void setIdle(bool idle);
 
 };

@@ -28,20 +28,25 @@ void NPC::updateNPCs(float dt)
 
 NPC::NPC(NPC* npc, vec3 position) : Character(npc, position)
 {
+	this->type = npc->getType();
+
 	jumpSpeed = 600.0f;
 	moveSpeed = 350.0f;
+	
 	if (type == NPCTYPE::RED)
 	{
 		setupAnimation(vec2(64, 64), 0.1f, 18, 21);
+		setupCollision(vec2(50, 45), vec3(0, -6, 0));
 	}
 	else
 	{
 		setupAnimation(vec2(64, 64), 0.1f, 54, 57);
+		setupCollision(vec2(40, 55), vec3(0, -1, 0));
 	}
-	startAnimation();
-	setupCollision(vec2(38, 50), vec3(0, -5, 0));
 
-	this->type = npc->getType();
+	startAnimation();
+	//setBoundingRectVisible(1);
+
 	state = NPCSTATE::MOVING;
 	isMovingLeft = 1;
 
@@ -54,29 +59,7 @@ NPC::NPC(NPC* npc, vec3 position) : Character(npc, position)
 
 NPC::NPC(vec3 position, NPCTYPE type) : Character("media\\img\\char.png", position, vec2(64, 64))
 {
-	jumpSpeed = 600.0f;
-	moveSpeed = 350.0f;
-	if (type == NPCTYPE::RED)
-	{
-		setupAnimation(vec2(64, 64), 0.1f, 18, 21);
-	}
-	else
-	{
-		setupAnimation(vec2(64, 64), 0.1f, 54, 57);
-	}
-	startAnimation();
-	setupCollision(vec2(38, 50), vec3(0, -5, 0));
-	//setBoundingRectVisible(1);
-
 	this->type = type;
-	state = NPCSTATE::MOVING;
-	isMovingLeft = 1;
-
-	// Duration of sprite stomped state, before fading state.
-	stompTimer = new Timer(0.0f, 1.0f);
-	fadeTimer = new Timer(0.1f, 0.0f);
-
-	//listNPCs.push_back(this);
 }
 
 NPC::~NPC()
@@ -87,8 +70,23 @@ NPC::~NPC()
 
 void NPC::update(float dt)
 {
-	if (state == NPCSTATE::MOVING)
+	if (state == NPCSTATE::IDLE)
 	{
+		isThreat = 1;
+		isMovingLeft = 0;
+		isMovingRight = 0;
+		if (type == NPCTYPE::RED)
+		{
+			setFrameRange(6, 6);
+		}
+		else
+		{
+			setFrameRange(42, 42);
+		}
+	}
+	else if (state == NPCSTATE::MOVING)
+	{
+		isThreat = 1;
 		if (isMovingLeft && collidingX == -1)
 		{
 			isMovingLeft = 0;
@@ -142,6 +140,15 @@ void NPC::stomped()
 void NPC::destroy()
 {
 	isDead = 1;
+}
+
+void NPC::setIdle(bool idle)
+{
+	if (idle)
+	{
+		state = NPCSTATE::IDLE;
+		hasGravity = 0;
+	}
 }
 
 NPCSTATE NPC::getState() const

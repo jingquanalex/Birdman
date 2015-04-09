@@ -20,6 +20,7 @@ private:
 
 	int score = 0;
 	int coinsCollected = 0, npcsKilled = 0;
+	int frozen = 0;
 
 public:
 
@@ -36,7 +37,8 @@ public:
 	void kick();
 	void collectCoin();
 	void killedNpc();
-	void resetScores();
+	void reset();
+	void freeze();
 
 	// === Callbacks ===
 
@@ -44,5 +46,10 @@ public:
 	void keyboardSpecialUp(int key);
 	void keyboard(unsigned char key);
 	void keyboardUp(unsigned char key);
+
+	// === Accessors ===
+
+	int getCoinsCollected();
+	int getNpcsKilled();
 
 };

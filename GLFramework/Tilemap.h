@@ -8,7 +8,7 @@
 struct Item
 {
 	glm::vec3 position;
-	int type;
+	std::string type;
 };
 
 class Tilemap : public Sprite
@@ -27,7 +27,7 @@ private:
 	// === Private Functions ===
 
 	void addQuadData(int posx, int posy, int value);
-	void addItemData(int posx, int posy, int value);
+	void addItemData(int posx, int posy, std::string value);
 
 public:
 

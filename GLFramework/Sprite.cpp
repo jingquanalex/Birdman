@@ -177,6 +177,8 @@ void Sprite::update(float dt)
 
 void Sprite::draw()
 {
+	if (!isVisible) return;
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -439,12 +441,17 @@ void Sprite::setBoundingRectPositionOffset(glm::vec3 offset)
 
 void Sprite::setColor(vec3 color)
 {
-	color = color;
+	this->color = color;
 }
 
 void Sprite::setColorBorder(vec3 color)
 {
 	colorBorder = color;
+}
+
+void Sprite::setAlpha(float alpha)
+{
+	this->alpha = alpha;
 }
 
 bool Sprite::getHasAnimation() const
@@ -486,6 +493,16 @@ bool Sprite::getVisibie() const
 bool Sprite::getIsFlippedX() const
 {
 	return isFlippedX;
+}
+
+float Sprite::getAlpha() const
+{
+	return alpha;
+}
+
+vec3 Sprite::getColor() const
+{
+	return color;
 }
 
 void Sprite::setVisible(bool isVisible)
