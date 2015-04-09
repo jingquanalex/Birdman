@@ -262,7 +262,7 @@ void Scene::update(float dt)
 	{
 		if (fadeTimer->hasTicked())
 		{
-			blanket->setAlpha(blanket->getAlpha() - 0.01f);
+			blanket->setAlpha(blanket->getAlpha() - dt);
 			if (blanket->getAlpha() <= 0.0f)
 			{
 				gameState = 2;
@@ -274,7 +274,7 @@ void Scene::update(float dt)
 	{
 		if (fadeTimer->hasTicked())
 		{
-			blanket->setAlpha(blanket->getAlpha() + 0.01f);
+			blanket->setAlpha(blanket->getAlpha() + dt);
 			if (blanket->getAlpha() >= 1.0f)
 			{
 				gameState = 1;

@@ -54,8 +54,8 @@ void Camera::update(float dt)
 	{
 		vec3 dir = destPosition - position;
 		float distSqr = dot(dir, dir);
-		vec3 dirNorm = normalize(dir);
-		if (distSqr > 5.0f && dt < 0.1f)
+		//vec3 dirNorm = normalize(dir);
+		if (distSqr > 5.0f)
 		{
 			velocity += dir * 22 * dt;
 		}
