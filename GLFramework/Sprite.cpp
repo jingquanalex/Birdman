@@ -166,6 +166,7 @@ void Sprite::update(float dt)
 		}
 
 		// Set texcoord based on frame number. Note: currentFrame starts at 0.
+		delete quadCoord;
 		quadCoord = new float[8] {
 			animFramesDelta.x * (currentFrame % (int)animFramesCount.x), 1 - animFramesDelta.y * (glm::floor(currentFrame / animFramesCount.x) + 1),
 			animFramesDelta.x * (currentFrame % (int)animFramesCount.x), 1 - animFramesDelta.y * glm::floor(currentFrame / animFramesCount.x),
@@ -269,6 +270,7 @@ void Sprite::setupAnimation(vec2 frameSize, float frameInterval, int startFrame,
 	animFramesDelta.x = 1 / animFramesCount.x;
 	animFramesDelta.y = 1 / animFramesCount.y;
 
+	delete quadCoord;
 	quadCoord = new float[8] {
 		0.0f, 1 - animFramesDelta.y,
 		0.0f, 1.0f,
