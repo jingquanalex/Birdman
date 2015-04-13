@@ -168,7 +168,7 @@ void Scene::update(float dt)
 			if (npc->getType() == NPCTYPE::RED)
 			{
 				// Guy can only kill the npc if he is falling on top of it.
-				float guyPosY = guy->getPosition().y + guy->getBoundingRect().y;
+				float guyPosY = guy->getPosition().y + guy->getBoundingRect().y / 2;
 				float npcPosY = npc->getPosition().y;
 				if (npc->getState() != NPCSTATE::STOMPED && guyPosY >= npcPosY && guy->getVelocity().y <= 0.0f)
 				{
@@ -366,13 +366,19 @@ void Scene::keyboard(unsigned char key)
 {
 	if (!stateLoaded) return;
 
-	guy->keyboard(key);
+	// Enable player controls only when game is begun and player is on the ground.
+	if (stateLoaded == 4)
+	{
+		guy->keyboard(key);
+	}
 
 	if (key == KEY_SPACE)
 	{
+		// Set to 3 to start game
 		if (stateLoaded == 2)
 		{
 			stateLoaded = 3;
+			guy->jump();
 		}
 	}
 	else if (key == '1')

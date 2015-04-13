@@ -118,6 +118,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(window_width, window_height);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow(g_windowTitle.c_str());
+	//glutFullScreen();
 	glewInit();
 
 	init();

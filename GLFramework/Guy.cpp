@@ -15,7 +15,7 @@ Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 6
 	setupAnimation(vec2(64, 64), 0.1f, 0, 2);
 	startAnimation();
 	setupCollision(vec2(38, 50), vec3(0, -5, 0));
-	//setBoundingRectVisible(1);
+	setBoundingRectVisible(1);
 }
 
 Guy::~Guy()

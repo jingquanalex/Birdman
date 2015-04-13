@@ -79,7 +79,7 @@ void Character::update(float dt)
 		if (valueL > 0 || valueR > 0)
 		{
 			velocity.y = -velocity.y;
-			position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 + boundingRectPositionOffset.y;
+			position.y = tilemap->getPositionAtCoord(coordL).y - tilemap->getMapTileSize().y - boundingRectSize.y / 2 - boundingRectPositionOffset.y;
 		}
 
 		// Always fall if not colliding.
