@@ -43,6 +43,7 @@ void Scene::load()
 	blanket->setZOrder(0.9f);
 	fadeTimer = new Timer(0.01f);
 	fadeTimer->start();
+	spawnTimer = new Timer(0.5f);
 
 	fontCredit1.FaceSize(100);
 	fontCredit2.FaceSize(50);
@@ -56,6 +57,7 @@ void Scene::load()
 
 void Scene::resetScene()
 {
+	if (hardMode) spawnTimer->start();
 	gameWon = 0;
 	stateLoaded = 1;
 	guy->reset();
@@ -185,6 +187,11 @@ void Scene::update(float dt)
 			else
 			{
 				guy->damageTaken();
+
+				if (hardMode)
+				{
+					spawnNpcNext++;
+				}
 			}
 		}
 
@@ -217,6 +224,21 @@ void Scene::update(float dt)
 		newNpc->setupMapCollision(tilemap);
 	}
 	spawnNpcNext = 0;
+
+	// Randomly spawn NPC in hardmode
+	if (spawnTimer->hasTicked())
+	{
+		if (rand() % 2)
+		{
+			// Don't spawn inside tilemap walls
+			vec3 spawnPos = guy->getPosition() + vec3(rand() % 1000 - 500, 500, 0);
+			if (tilemap->getValueAtPos(spawnPos) <= 0)
+			{
+				NPC* newNpc = new NPC(npc, spawnPos);
+				newNpc->setupMapCollision(tilemap);
+			}
+		}
+	}
 
 	// Update coin list, if collected, set visible to 0.
 	for_each(listCoins.begin(), listCoins.end(), [=](Sprite*& coin) {
@@ -254,7 +276,9 @@ void Scene::update(float dt)
 	if (!gameWon && distance2(guy->getPosition(), vec3(2527, -235, 0)) < 955.0f)
 	{
 		gameWon = 1;
+		hardMode = 1;
 		guy->freeze();
+		guy->addScore(1000);
 	}
 
 	// Fade in/out and reset scene
@@ -303,9 +327,10 @@ void Scene::draw()
 		glPixelTransferf(GL_BLUE_BIAS, -1.0f);
 		fontStartGame.Render("START", -1, FTPoint(window_width / 2 - 100, window_height / 2 + 150, 0));
 		fontStartGame2.Render("Press Space To", -1, FTPoint(window_width / 2 - 120, window_height - 100, 0));
-		fontStartGame2.Render("Collect ->", -1, FTPoint(window_width / 2 - 250, window_height / 2 + 10, 0));
-		fontStartGame2.Render("Collect ->", -1, FTPoint(window_width / 2 - 250, window_height / 2 - 60, 0));
-		fontStartGame2.Render("Stomp ->", -1, FTPoint(window_width / 2 - 250, window_height / 2 - 130, 0));
+		fontStartGame2.Render("Collect->", -1, FTPoint(window_width / 2 - 220, window_height / 2 + 10, 0));
+		fontStartGame2.Render("Collect->", -1, FTPoint(window_width / 2 - 220, window_height / 2 - 60, 0));
+		fontStartGame2.Render("Stomp->", -1, FTPoint(window_width / 2 - 220, window_height / 2 - 130, 0));
+		fontStartGame2.Render("Avoid->", -1, FTPoint(window_width / 2 + 250, window_height / 2 + 130, 0));
 	}
 	else if (stateLoaded == 4)
 	{
@@ -343,7 +368,7 @@ void Scene::mouse(int button, int state)
 
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		printf("%i, %i \n", (int)cursor->getPosition().x, (int)cursor->getPosition().y);
+		//printf("%i, %i \n", (int)cursor->getPosition().x, (int)cursor->getPosition().y);
 		//camera->moveTo(cursor->getGlobalPosition());
 		guy->setPosition(cursor->getGlobalPosition());
 		guy->setVelocity(vec3());

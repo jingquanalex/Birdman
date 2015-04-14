@@ -39,6 +39,7 @@ public:
 	void killedNpc();
 	void reset();
 	void freeze();
+	void addScore(int score);
 
 	// === Callbacks ===
 

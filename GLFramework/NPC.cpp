@@ -48,7 +48,15 @@ NPC::NPC(NPC* npc, vec3 position) : Character(npc, position)
 	//setBoundingRectVisible(1);
 
 	state = NPCSTATE::MOVING;
-	isMovingLeft = 1;
+	// Randomly start moving left or right
+	if (rand() % 2)
+	{
+		isMovingLeft = 1;
+	}
+	else
+	{
+		isMovingRight = 1;
+	}
 
 	// Duration of sprite stomped state, before fading state.
 	stompTimer = new Timer(0.0f, 1.0f);

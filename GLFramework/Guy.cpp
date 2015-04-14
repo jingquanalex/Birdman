@@ -65,7 +65,11 @@ void Guy::update(float dt)
 		kickCharges = 1;
 	}
 
-	if (statePunching)
+	if (frozen)
+	{
+		setFrameRange(0, 3);
+	}
+	else if (statePunching)
 	{
 		if (currentFrame == 28)
 		{
@@ -205,6 +209,11 @@ void Guy::reset()
 void Guy::freeze()
 {
 	frozen = 1;
+}
+
+void Guy::addScore(int score)
+{
+	this->score += score;
 }
 
 void Guy::keyboardSpecial(int key)

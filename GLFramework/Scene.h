@@ -20,6 +20,7 @@ private:
 	int stateLoaded = 0;
 	int gameState = 1;
 	int gameWon = 0;
+	bool hardMode = 0;
 	Camera* camera;
 	Cursor* cursor;
 	Sprite* background;
@@ -34,6 +35,7 @@ private:
 	int spawnNpcNext = 0;
 	Sprite* blanket;
 	Timer* fadeTimer;
+	Timer* spawnTimer;
 
 public:
 

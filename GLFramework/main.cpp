@@ -54,7 +54,6 @@ void display()
 	cursor->draw();
 	
 	glutSwapBuffers();
-	glFinish();
 }
 
 // Window dimension changed, recreate camera proj matrix.
