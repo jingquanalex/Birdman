@@ -45,6 +45,8 @@ public:
 	void struck();
 	void destroy();
 	void setIdle(bool idle);
+	void moveLeft();
+	void moveRight();
 
 	// === Accessors ===
 

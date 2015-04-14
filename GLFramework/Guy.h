@@ -50,7 +50,8 @@ public:
 
 	// === Accessors ===
 
-	int getCoinsCollected();
-	int getNpcsKilled();
+	int getCoinsCollected() const;
+	int getNpcsKilled() const;
+	int getScore() const;
 
 };

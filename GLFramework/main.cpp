@@ -117,7 +117,20 @@ int main(int argc, char** argv)
 	glutInitWindowSize(window_width, window_height);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow(g_windowTitle.c_str());
-	//glutFullScreen();
+
+	// Enable windowed mode if arg provided
+	stringstream ss;
+	if (argc == 2)
+	{
+		ss << argv[1] << "";
+	}
+
+	if (ss.str() != "-window")
+	{
+		glutGameModeString("1280x800:32@60");
+		glutEnterGameMode();
+	}
+
 	glewInit();
 
 	init();

@@ -23,7 +23,8 @@ private:
 	bool hardMode = 0;
 	Camera* camera;
 	Cursor* cursor;
-	Sprite* background;
+	Sprite* bgGreen;
+	Sprite* bgBrown;
 	Tilemap* tilemap;
 	Guy* guy;
 	NPC* npc;
@@ -36,6 +37,8 @@ private:
 	Sprite* blanket;
 	Timer* fadeTimer;
 	Timer* spawnTimer;
+	Timer* gameTimer;
+	int secondsElasped = 0;
 
 public:
 

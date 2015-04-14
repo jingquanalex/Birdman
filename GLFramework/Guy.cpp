@@ -15,7 +15,7 @@ Guy::Guy(vec3 position) : Character("media\\img\\char.png", position, vec2(64, 6
 	setupAnimation(vec2(64, 64), 0.1f, 0, 2);
 	startAnimation();
 	setupCollision(vec2(38, 50), vec3(0, -5, 0));
-	setBoundingRectVisible(1);
+	//setBoundingRectVisible(1);
 }
 
 Guy::~Guy()
@@ -171,11 +171,13 @@ void Guy::kick()
 void Guy::collectCoin()
 {
 	coinsCollected++;
+	score++;
 }
 
 void Guy::killedNpc()
 {
 	npcsKilled++;
+	score++;
 }
 
 void Guy::reset()
@@ -282,12 +284,17 @@ void Guy::keyboardUp(unsigned char key)
 	}
 }
 
-int Guy::getCoinsCollected()
+int Guy::getCoinsCollected() const
 {
 	return coinsCollected;
 }
 
-int Guy::getNpcsKilled()
+int Guy::getNpcsKilled() const
 {
 	return npcsKilled;
+}
+
+int Guy::getScore() const
+{
+	return score;
 }
