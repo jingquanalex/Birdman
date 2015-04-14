@@ -143,7 +143,7 @@ glm::vec2 Tilemap::getCoordAtPos(vec3 position) const
 // Return value of -1 is undefined.
 int Tilemap::getValueAtCoord(int x, int y) const
 {
-	if (y >= 0 && y < mapValues.size() && x >= 0 && x < mapValues[y].size())
+	if (y >= 0 && y < (int)mapValues.size() && x >= 0 && x < (int)mapValues[y].size())
 	{
 		return mapValues[y][x];
 	}
