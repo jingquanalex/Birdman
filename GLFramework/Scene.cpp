@@ -6,11 +6,10 @@ using namespace std;
 extern int window_width;
 extern int window_height;
 
-FTGLPixmapFont fontCredit1 = FTGLPixmapFont("media\\pixel.ttf");
-FTGLPixmapFont fontCredit2 = FTGLPixmapFont("media\\pixel.ttf");
-FTGLPixmapFont fontStartGame = FTGLPixmapFont("media\\pixel.ttf");
-FTGLPixmapFont fontStartGame2 = FTGLPixmapFont("media\\pixel.ttf");
-FTGLPixmapFont fontCheater = FTGLPixmapFont("media\\pixel.ttf");
+freetype::font_data fontH1;
+freetype::font_data fontH2;
+freetype::font_data fontH3;
+freetype::font_data fontCh;
 
 Scene::Scene(Camera* camera, Cursor* cursor)
 {
@@ -52,11 +51,10 @@ void Scene::load()
 	spawnTimer = new Timer(0.5f);
 	gameTimer = new Timer(1.0);
 
-	fontCredit1.FaceSize(100);
-	fontCredit2.FaceSize(50);
-	fontStartGame.FaceSize(100);
-	fontStartGame2.FaceSize(40);
-	fontCheater.FaceSize(300);
+	fontH1.init("media\\pixel.ttf", 100);
+	fontH2.init("media\\pixel.ttf", 50);
+	fontH3.init("media\\pixel.ttf", 35);
+	fontCh.init("media\\pixel.ttf", 200);
 
 	resetScene();
 
@@ -314,6 +312,12 @@ void Scene::update(float dt)
 		hardMode = 1;
 		guy->freeze();
 		gameTimer->stop();
+
+		// Add speedrun score
+		if (secondsElasped < 60)
+		{
+			guy->addScore(pow(60 - secondsElasped, 2));
+		}
 	}
 
 	// Fade in/out and reset scene
@@ -352,83 +356,88 @@ void Scene::draw()
 	// UI
 	if (stateLoaded != 4)
 	{
-		glPixelTransferf(GL_RED_BIAS, -1.0f);
-		glPixelTransferf(GL_GREEN_BIAS, 1.0f);
-		glPixelTransferf(GL_BLUE_BIAS, 1.0f);
-		fontCredit1.Render("BirdMan");
-		fontCredit2.Render("by Alex Zhang", -1, FTPoint(400, 20, 0));
-		glPixelTransferf(GL_RED_BIAS, -1.0f);
-		glPixelTransferf(GL_GREEN_BIAS, -1.0f);
-		glPixelTransferf(GL_BLUE_BIAS, -1.0f);
-		fontStartGame.Render("START", -1, FTPoint(window_width / 2 - 100, window_height / 2 + 150, 0));
-		fontStartGame2.Render("Press Space To", -1, FTPoint(window_width / 2 - 120, window_height - 100, 0));
-		fontStartGame2.Render("Collect->", -1, FTPoint(window_width / 2 - 220, window_height / 2 + 10, 0));
-		fontStartGame2.Render("Collect->", -1, FTPoint(window_width / 2 - 220, window_height / 2 - 60, 0));
-		fontStartGame2.Render("Stomp->", -1, FTPoint(window_width / 2 - 220, window_height / 2 - 130, 0));
-		fontStartGame2.Render("Avoid->", -1, FTPoint(window_width / 2 + 250, window_height / 2 + 130, 0));
+		glColor3f(0, 1, 1);
+		freetype::print(fontH1, camera->getPosition().x - window_width / 2,
+			camera->getPosition().y - window_height / 2, "BirdMan");
+		freetype::print(fontH2, camera->getPosition().x - window_width / 2 + 550,
+			camera->getPosition().y - window_height / 2 + 20, "by Alex Zhang");
+		glColor3f(0, 0, 0);
+		freetype::print(fontH1, camera->getPosition().x - 136,
+			camera->getPosition().y + 127, "START");
+		freetype::print(fontH2, camera->getPosition().x - 210,
+			camera->getPosition().y + 327, "PRESS SPACE TO");
+		freetype::print(fontH3, camera->getPosition().x - 230,
+			camera->getPosition().y + 5, "Collect>");
+		freetype::print(fontH3, camera->getPosition().x - 230,
+			camera->getPosition().y - 65, "Collect>");
+		freetype::print(fontH3, camera->getPosition().x - 230,
+			camera->getPosition().y - 130, "Stomp>");
+		freetype::print(fontH3, camera->getPosition().x + 250,
+			camera->getPosition().y + 130, "Avoid>");
 	}
 	else if (stateLoaded == 4)
 	{
-		glPixelTransferf(GL_RED_BIAS, 1.0f);
-		glPixelTransferf(GL_GREEN_BIAS, -1.0f);
-		glPixelTransferf(GL_BLUE_BIAS, 1.0f);
-		stringstream ss;
-		ss << "Coins Collected: " << guy->getCoinsCollected();
-		fontStartGame2.Render(ss.str().c_str(), -1, FTPoint(90, window_height - 100, 0));
-		ss.str("");
-		ss.clear();
-		ss << "Monster Stomped: " << guy->getNpcsKilled();
-		fontStartGame2.Render(ss.str().c_str(), -1, FTPoint(window_width - 525, window_height - 100, 0));
-		ss.str("");
-		ss.clear();
-		ss << "Time: " << secondsElasped;
-		fontStartGame2.Render(ss.str().c_str(), -1, FTPoint(window_width / 2 - 100, window_height - 100, 0));
+		glColor3f(1, 0, 1);
+		freetype::print(fontH3, camera->getPosition().x - window_width / 2 + 50,
+			camera->getPosition().y + window_height / 2 - 70, "Coins: %i", guy->getCoinsCollected());
+		freetype::print(fontH3, camera->getPosition().x - 80,
+			camera->getPosition().y + window_height / 2 - 70, "Time: %i", secondsElasped);
+		freetype::print(fontH3, camera->getPosition().x + window_width / 2 - 320,
+			camera->getPosition().y + window_height / 2 - 70, "Stomped: %i", guy->getNpcsKilled());
 
 		if (gameWon)
 		{
+			glColor3f(1, 1, 0);
+			freetype::print(fontH1, camera->getPosition().x - window_width / 2,
+				camera->getPosition().y - window_height / 2, "You Win!");
 
-			glPixelTransferf(GL_RED_BIAS, 1.0f);
-			glPixelTransferf(GL_GREEN_BIAS, 1.0f);
-			glPixelTransferf(GL_BLUE_BIAS, -1.0f);
-			fontCredit1.Render("You Win!");
 			if (bgGreen->getVisibie())
 			{
-				fontCredit2.Render("Press 1 for HardMode.", -1, FTPoint(450, 0, 0));
+				glColor3f(1, 1, 0);
+				freetype::print(fontH2, camera->getPosition().x - window_width / 2 + 580,
+					camera->getPosition().y - window_height / 2, "HardMode Unlocked.");
 			}
 			else
 			{
-				fontCredit2.Render("Press 1 to play again.", -1, FTPoint(450, 0, 0));
+				glColor3f(1, 1, 0);
+				if (devMode)
+				{
+					freetype::print(fontH2, camera->getPosition().x - window_width / 2 + 580,
+						camera->getPosition().y - window_height / 2, "TruNoobz.");
+				}
+				else
+				{
+					freetype::print(fontH2, camera->getPosition().x - window_width / 2 + 580,
+						camera->getPosition().y - window_height / 2, "TruSkillz.");
+				}
 			}
 
-			ss.str("");
-			ss.clear();
-			glPixelTransferf(GL_RED_BIAS, -1.0f);
-			glPixelTransferf(GL_GREEN_BIAS, -1.0f);
-			glPixelTransferf(GL_BLUE_BIAS, -1.0f);
-			ss << "Score: " << guy->getScore();
-			fontCredit2.Render(ss.str().c_str(), -1, FTPoint(window_width / 2 - 150, window_height / 2 - 340, 0));
-			ss.str("");
-			ss.clear();
-			ss << "Monster Stomped:+" << guy->getNpcsKilled();
-			fontCredit2.Render(ss.str().c_str(), -1, FTPoint(window_width / 2 - 463, window_height / 2 - 300, 0));
-			ss.str("");
-			ss.clear();
-			ss << "Coins Collected:+" << guy->getCoinsCollected();
-			fontCredit2.Render(ss.str().c_str(), -1, FTPoint(window_width / 2 - 387, window_height / 2 - 260, 0));
+			glColor3f(0, 0, 0);
+			freetype::print(fontH3, camera->getPosition().x - window_width / 2 + 50,
+				camera->getPosition().y + window_height / 2 - 270, "Coins Collected: +%i \nMonster Stomped: +%i \nScore: %i",
+				guy->getCoinsCollected(), guy->getNpcsKilled(), guy->getScore());
+
+			if (secondsElasped < 60)
+			{
+				freetype::print(fontH3, camera->getPosition().x - window_width / 2 + 50,
+					camera->getPosition().y + window_height / 2 - 210, "SpeedRun: +%i", pow(60 - secondsElasped, 2));
+			}
 
 			if (bgBrown->getVisibie())
 			{
-				fontCredit2.Render("HardMode:+1000", -1, FTPoint(window_width / 2 - 257, window_height / 2 - 220, 0));
+				freetype::print(fontH3, camera->getPosition().x - window_width / 2 + 50,
+					camera->getPosition().y + window_height / 2 - 150, "HardMode: +1000");
 			}
 
 			if (devMode)
 			{
-				glPixelTransferf(GL_RED_BIAS, 1.0f);
-				glPixelTransferf(GL_GREEN_BIAS, -0.5f);
-				glPixelTransferf(GL_BLUE_BIAS, -0.7f);
-				fontCheater.Render("CHEATER", -1, FTPoint(window_width / 2 - 550, window_height / 2 - 300, 0));
-				fontCheater.Render("CHEATER", -1, FTPoint(window_width / 2 - 550, window_height / 2 - 100, 0));
-				fontCheater.Render("CHEATER", -1, FTPoint(window_width / 2 - 550, window_height / 2 + 100, 0));
+				glColor3f(1.0f, 0.5f, 0.3f);
+				freetype::print(fontCh, camera->getPosition().x - 500,
+					camera->getPosition().y - 300, "CHEATER");
+				freetype::print(fontCh, camera->getPosition().x - 500,
+					camera->getPosition().y - 100, "CHEATER");
+				freetype::print(fontCh, camera->getPosition().x - 500,
+					camera->getPosition().y + 100, "CHEATER");
 			}
 		}
 	}
@@ -480,6 +489,12 @@ void Scene::keyboard(unsigned char key)
 			stateLoaded = 3;
 			guy->jump();
 			gameTimer->start();
+		}
+
+		// Move to next level
+		if (gameWon)
+		{
+			gameOver();
 		}
 	}
 	else if (key == '1')

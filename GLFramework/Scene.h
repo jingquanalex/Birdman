@@ -1,6 +1,5 @@
 #pragma once
 
-#include <FTGL/ftgl.h>
 #include "Timer.h"
 #include "Camera.h"
 #include "Cursor.h"
@@ -9,6 +8,7 @@
 #include "Character.h"
 #include "Guy.h"
 #include "NPC.h"
+#include "freetype.h"
 
 // Manages the player, map, objects, score, game logic.
 class Scene
