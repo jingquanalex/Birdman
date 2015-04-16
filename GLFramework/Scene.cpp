@@ -313,10 +313,10 @@ void Scene::update(float dt)
 		guy->freeze();
 		gameTimer->stop();
 
-		// Add speedrun score
+		// Add speedrun score, assume
 		if (secondsElasped < 60)
 		{
-			guy->addScore(pow(60 - secondsElasped, 2));
+			guy->addScore(500 + pow(60 - secondsElasped, 2));
 		}
 	}
 
@@ -325,7 +325,7 @@ void Scene::update(float dt)
 	{
 		if (fadeTimer->hasTicked())
 		{
-			blanket->setAlpha(blanket->getAlpha() - 2 * dt);
+			blanket->setAlpha(blanket->getAlpha() - 0.01f);
 			if (blanket->getAlpha() <= 0.0f)
 			{
 				gameState = 2;
@@ -337,7 +337,7 @@ void Scene::update(float dt)
 	{
 		if (fadeTimer->hasTicked())
 		{
-			blanket->setAlpha(blanket->getAlpha() + 2 * dt);
+			blanket->setAlpha(blanket->getAlpha() + 0.01f);
 			if (blanket->getAlpha() >= 1.0f)
 			{
 				gameState = 1;
@@ -417,10 +417,11 @@ void Scene::draw()
 				camera->getPosition().y + window_height / 2 - 270, "Coins Collected: +%i \nMonster Stomped: +%i \nScore: %i",
 				guy->getCoinsCollected(), guy->getNpcsKilled(), guy->getScore());
 
+			// Display speedrun score
 			if (secondsElasped < 60)
 			{
 				freetype::print(fontH3, camera->getPosition().x - window_width / 2 + 50,
-					camera->getPosition().y + window_height / 2 - 210, "SpeedRun: +%i", pow(60 - secondsElasped, 2));
+					camera->getPosition().y + window_height / 2 - 210, "SpeedRun: +%i", 500 + pow(60 - secondsElasped, 2));
 			}
 
 			if (bgBrown->getVisibie())
